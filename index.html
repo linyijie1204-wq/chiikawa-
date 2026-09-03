@@ -109,6 +109,30 @@
       }
     }
 
+    // 雙通道跨域抓取函式
+    async function fetchProductData(handle) {
+      const targetUrl = `https://chiikawamarket.jp/products/${handle}.js`;
+      
+      // 通道 1: corsproxy.io
+      try {
+        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn('通道 1 失敗，嘗試通道 2');
+      }
+
+      // 通道 2: allorigins.win
+      try {
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        const data = await res.json();
+        if (data?.contents) return JSON.parse(data.contents);
+      } catch (e) {
+        console.warn('通道 2 失敗');
+      }
+
+      throw new Error('所有通道皆無法抓取');
+    }
+
     async function addItem() {
       const urlInput = document.getElementById('productUrl').value.trim();
       const buyPrice = document.getElementById('buyPriceTwd').value.trim();
@@ -119,53 +143,55 @@
       if (!urlInput) return alert('請先貼上官網商品網址！');
       
       const match = urlInput.match(/\/products\/([^?#/]+)/);
-      if (!match) {
-        return alert('網址格式無法辨識，請貼上包含 /products/... 的商品頁網址！');
-      }
+      if (!match) return alert('網址格式無法辨識，請貼上包含 /products/... 的商品頁網址！');
+      
       const productHandle = decodeURIComponent(match[1]);
 
       addBtn.disabled = true;
-      syncStatus.innerText = '⏳ 正在讀取官網圖片與原價...';
+      syncStatus.innerText = '⏳ 正在讀取官網資訊...';
+
+      let title = '';
+      let jpyPrice = 0;
+      let imageUrl = '';
 
       try {
-        const targetUrl = `https://chiikawamarket.jp/products/${productHandle}.js`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        const product = await fetchProductData(productHandle);
+        title = product.title;
         
-        const res = await fetch(proxyUrl);
-        const proxyData = await res.json();
-        
-        let product;
-        if (proxyData.contents) {
-          product = JSON.parse(proxyData.contents);
-        } else {
-          throw new Error('無法取得內容');
-        }
-
-        const title = product.title;
-        
-        // 正確解析官方原價（修復 1670 抓成 14 的問題）
         let rawPrice = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
         rawPrice = parseFloat(rawPrice);
-        if (rawPrice > 50000) {
-          rawPrice = rawPrice / 100;
+        if (rawPrice > 50000) rawPrice = rawPrice / 100;
+        jpyPrice = Math.round(rawPrice);
+
+        imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
+      } catch (err) {
+        console.warn('自動解析受阻，啟用手動輔助輸入');
+        title = prompt('官網連線較慢，請直接輸入「商品名稱」：', '吉伊卡哇吊飾');
+        if (!title) {
+          addBtn.disabled = false;
+          syncStatus.innerText = '';
+          return;
         }
-        const jpyPrice = Math.round(rawPrice);
+        const promptPrice = prompt('請輸入「日幣原價」（例如 1670）：', '1670');
+        jpyPrice = parseFloat(promptPrice) || 0;
+        imageUrl = 'https://chiikawamarket.jp/cdn/shop/files/chiikawa_logo.png';
+      }
 
-        const imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
-        const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
+      const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
 
-        const newItem = {
-          id: Date.now(),
-          title: title,
-          category: category,
-          jpyPrice: jpyPrice,
-          twdOriginalPrice: twdOriginalPrice,
-          buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
-          imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
-          url: urlInput
-        };
+      const newItem = {
+        id: Date.now(),
+        title: title,
+        category: category,
+        jpyPrice: jpyPrice,
+        twdOriginalPrice: twdOriginalPrice,
+        buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
+        imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
+        url: urlInput
+      };
 
-        syncStatus.innerText = '☁️ 正在同步存入 Google 試算表...';
+      syncStatus.innerText = '☁️ 正在同步存入 Google 試算表...';
+      try {
         await fetch(GAS_API_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -179,10 +205,8 @@
         document.getElementById('buyPriceTwd').value = '';
         syncStatus.innerText = '✅ 同步成功！';
         setTimeout(() => syncStatus.innerText = '', 3000);
-      } catch (err) {
-        console.error(err);
-        syncStatus.innerText = '';
-        alert('抓取失敗！請確認貼上的是否為單一商品頁面。');
+      } catch (e) {
+        alert('存入雲端失敗，請檢查網路連線。');
       } finally {
         addBtn.disabled = false;
       }
