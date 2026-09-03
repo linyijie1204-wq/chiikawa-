@@ -3,160 +3,294 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>吉伊卡哇吊飾＆小物收藏庫 (雲端同步版)</title>
+  <title>吉伊卡哇 收藏圖鑑＆預購追蹤帳本</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .tab-active {
+      border-bottom: 3px solid #ec4899;
+      color: #ec4899;
+      font-weight: bold;
+    }
+  </style>
 </head>
-<body class="bg-amber-50 min-h-screen text-slate-800 p-4 sm:p-8">
+<body class="bg-amber-50/60 min-h-screen text-slate-800 p-3 sm:p-8">
 
   <div class="max-w-5xl mx-auto">
-    <!-- 標題區 -->
-    <header class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-pink-600 mb-2">✨ 吉伊卡哇吊飾收藏記錄本 ✨</h1>
-      <p class="text-sm text-gray-500">自訂原價＆台幣花費 ☁️ 雲端同步無阻擋</p>
+    <!-- 頁頭 -->
+    <header class="text-center mb-6">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-pink-600 mb-1">
+        ✨ 吉伊卡哇 收藏圖鑑 ＆ 追蹤帳本 ✨
+      </h1>
+      <p class="text-xs sm:text-sm text-gray-500">雲端同步備份 ☁️ 圖鑑收藏 × 預購訂金尾款管理</p>
     </header>
 
-    <!-- 輸入控制板 -->
-    <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-pink-100">
-      <h2 class="text-lg font-bold mb-4 text-gray-700">＋ 新增收藏項目</h2>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="md:col-span-2">
-          <label class="block text-xs font-semibold text-gray-500 mb-1">商品名稱</label>
-          <input id="itemTitle" type="text" placeholder="例如：平行世界 趴趴吊飾 小八貓" 
-                 class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
+    <!-- 頂部分頁切換標籤 -->
+    <div class="flex border-b border-pink-200 mb-6 bg-white/70 rounded-t-2xl px-4 pt-2">
+      <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-3 px-6 text-sm sm:text-base flex items-center gap-2">
+        <span>🏆</span> 收藏圖鑑
+      </button>
+      <button onclick="switchTab('orders')" id="tabBtnOrders" class="text-gray-500 hover:text-pink-600 py-3 px-6 text-sm sm:text-base flex items-center gap-2">
+        <span>📦</span> 購買／預購紀錄 (<span id="unpaidBadge" class="text-red-500 font-bold">0</span>)
+      </button>
+    </div>
+
+    <!-- 狀態提示 -->
+    <div id="syncStatus" class="text-center text-xs font-semibold text-pink-600 mb-4 h-4"></div>
+
+    <!-- ======================= 收藏圖鑑 區塊 ======================= -->
+    <div id="viewCollection">
+      <!-- 新增收藏表單 -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border border-pink-100">
+        <h2 class="text-sm font-bold mb-3 text-pink-700 flex items-center gap-2">
+          <span>＋</span> 新增已入手圖鑑收藏
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="md:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">商品名稱</label>
+            <input id="colTitle" type="text" placeholder="例如：平行世界 趴趴吊飾 小八" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
+          <div>
+            <label class="block text-xs text-pink-600 mb-1">日幣含稅原價 (JPY)</label>
+            <input id="colJpy" type="number" placeholder="例如: 1650" class="w-full border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">台幣購入價 (NTD)</label>
+            <input id="colBuyTwd" type="number" placeholder="例如: 430" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-pink-600 mb-1">日幣含稅原價 (JPY)</label>
-          <input id="jpyPrice" type="number" placeholder="例如: 1650" 
-                 class="w-full border border-pink-300 rounded-lg px-3 py-2 text-sm focus:outline-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">購入金額 (NTD)</label>
-          <input id="buyPriceTwd" type="number" placeholder="例如: 430" 
-                 class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 items-end">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">角色歸類</label>
+            <select id="colCategory" class="w-full border rounded-xl px-3 py-2 text-sm bg-white focus:outline-pink-400">
+              <option value="吉伊卡哇">吉伊卡哇 (ちいかわ)</option>
+              <option value="小八貓">小八貓 (ハチワレ)</option>
+              <option value="兔兔">兔兔 (うさぎ)</option>
+              <option value="小桃鼠">小桃鼠 (モモンガ)</option>
+              <option value="栗子饅頭">栗子饅頭 (くりまんじゅう)</option>
+              <option value="海獺">海獺勇者 (ラッコ)</option>
+              <option value="獅薩">獅薩 (シーサー)</option>
+              <option value="古本屋">古本屋 (カニちゃん)</option>
+              <option value="其他">其他 / 多人款</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">圖片網址 (選填，可貼官網或推特圖)</label>
+            <input id="colImage" type="url" placeholder="留空使用專屬角色頭像" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
+          <div>
+            <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-xl text-sm transition">
+              儲存至收藏圖鑑
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
-        <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">角色歸類</label>
-          <select id="charCategory" class="w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-pink-400">
-            <option value="吉伊卡哇">吉伊卡哇</option>
-            <option value="小八貓">小八貓</option>
-            <option value="兔兔">兔兔</option>
-            <option value="小桃鼠">小桃鼠</option>
-            <option value="栗子饅頭">栗子饅頭</option>
-            <option value="海獺">海獺</option>
-            <option value="獅薩">獅薩</option>
-            <option value="古本屋">古本屋</option>
-            <option value="其他">其他 / 多人款</option>
-          </select>
+      <!-- 角色過濾按鈕欄 (附頭像) -->
+      <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons">
+        <!-- JS 動態生成帶圖片的過濾按鈕 -->
+      </div>
+
+      <!-- 統計數據條 -->
+      <div class="flex justify-between items-center bg-pink-100/70 px-4 py-2 rounded-xl text-xs sm:text-sm text-pink-700 font-medium mb-6">
+        <span id="colStatsCount">圖鑑數量：0 件</span>
+        <span id="colStatsTotal">收藏總投入：NT$ 0</span>
+      </div>
+
+      <!-- 圖鑑列表 -->
+      <div id="collectionGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+    </div>
+
+    <!-- ======================= 購買／預購追蹤 區塊 ======================= -->
+    <div id="viewOrders" class="hidden">
+      <!-- 新增預購訂單表單 -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border border-pink-100">
+        <h2 class="text-sm font-bold mb-3 text-pink-700 flex items-center gap-2">
+          <span>＋</span> 新增預購／代購追蹤紀錄
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="md:col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">預購商品名稱</label>
+            <input id="ordTitle" type="text" placeholder="例如：一番賞 A賞吉伊" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">角色歸類</label>
+            <select id="ordCategory" class="w-full border rounded-xl px-3 py-2 text-sm bg-white focus:outline-pink-400">
+              <option value="吉伊卡哇">吉伊卡哇</option>
+              <option value="小八貓">小八貓</option>
+              <option value="兔兔">兔兔</option>
+              <option value="小桃鼠">小桃鼠</option>
+              <option value="栗子饅頭">栗子饅頭</option>
+              <option value="海獺">海獺</option>
+              <option value="獅薩">獅薩</option>
+              <option value="古本屋">古本屋</option>
+              <option value="其他">其他 / 多人款</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">跟團代購 / 賣家備註</label>
+            <input id="ordSeller" type="text" placeholder="例如：FB團購主、蝦皮" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
         </div>
-        <div class="md:col-span-2">
-          <label class="block text-xs font-semibold text-gray-500 mb-1">圖片或商品連結 (選填)</label>
-          <input id="itemUrl" type="url" placeholder="可貼圖片網址或官網網址 (留空亦可)" 
-                 class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">預購總額 (NTD)</label>
+            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 500" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
+          <div>
+            <label class="block text-xs text-pink-600 mb-1">已付訂金 (NTD)</label>
+            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">剩餘尾款 (自動計算)</label>
+            <input id="ordRemainingTwd" type="number" placeholder="尾款" disabled class="w-full bg-gray-100 border rounded-xl px-3 py-2 text-sm text-gray-600">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">訂單狀態</label>
+            <select id="ordStatus" class="w-full border rounded-xl px-3 py-2 text-sm bg-white focus:outline-pink-400">
+              <option value="已付訂金">🟡 已付訂金 (待出貨)</option>
+              <option value="尚未付款">🔴 尚未付款</option>
+              <option value="已全額結清">🟢 已全額結清</option>
+              <option value="已到貨收編">🎉 已到貨收編</option>
+            </select>
+          </div>
         </div>
-        <div class="flex justify-between items-end">
-          <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
-          <button id="addBtn" onclick="addItem()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 shadow-sm">
-            儲存至雲端
+
+        <div class="mt-4 flex justify-end">
+          <button onclick="addOrderItem()" id="btnOrdAdd" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-xl text-sm transition">
+            儲存追蹤項目
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- 篩選與數據統計 -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold">角色篩選：</span>
-        <select id="filterCategory" onchange="renderItems()" class="border rounded-lg px-3 py-1 text-sm bg-white">
-          <option value="ALL">全部角色</option>
-          <option value="吉伊卡哇">吉伊卡哇</option>
-          <option value="小八貓">小八貓</option>
-          <option value="兔兔">兔兔</option>
-          <option value="小桃鼠">小桃鼠</option>
-          <option value="栗子饅頭">栗子饅頭</option>
-          <option value="海獺">海獺</option>
-          <option value="獅薩">獅薩</option>
-          <option value="古本屋">古本屋</option>
-          <option value="其他">其他 / 多人款</option>
-        </select>
-      </div>
-      <div class="flex items-center gap-3">
-        <button onclick="loadFromCloud()" class="text-xs text-pink-600 hover:underline">🔄 重新整理雲端資料</button>
-        <div class="text-sm bg-pink-100 text-pink-700 px-4 py-2 rounded-xl font-medium" id="statsBox">
-          雲端載入中...
-        </div>
-      </div>
+      <!-- 預購訂單列表 -->
+      <div id="orderList" class="space-y-3"></div>
     </div>
-
-    <!-- 卡片展示列表 -->
-    <div id="itemList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
   </div>
 
   <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyylu0TrrufOu7fCqR8NJtPYj4Wo4viUlJvBFF6ZvbmgOZ_hOSw64mxSRWtXCEcnFM7/exec"; 
 
-    let JPY_TO_TWD = 0.215; // 預設匯率
-    let myCollection = [];
+    // 各角色的代表頭像 (SVG / 官方配色可愛頭貼)
+    const CHAR_AVATARS = {
+      "全部": "https://api.iconify.design/fluent-emoji-flat:star.svg",
+      "吉伊卡哇": "https://api.iconify.design/fluent-emoji-flat:bear.svg",
+      "小八貓": "https://api.iconify.design/fluent-emoji-flat:cat.svg",
+      "兔兔": "https://api.iconify.design/fluent-emoji-flat:rabbit.svg",
+      "小桃鼠": "https://api.iconify.design/fluent-emoji-flat:chipmunk.svg",
+      "栗子饅頭": "https://api.iconify.design/fluent-emoji-flat:otter.svg",
+      "海獺": "https://api.iconify.design/fluent-emoji-flat:seal.svg",
+      "獅薩": "https://api.iconify.design/fluent-emoji-flat:lion.svg",
+      "古本屋": "https://api.iconify.design/fluent-emoji-flat:crab.svg",
+      "其他": "https://api.iconify.design/fluent-emoji-flat:sparkles.svg"
+    };
 
-    // 自動取得即時日幣匯率
+    let JPY_TO_TWD = 0.215;
+    let allItems = []; // 包含 collection 與 order 兩種類型
+    let currentFilter = "全部";
+
+    // 切換分頁
+    function switchTab(tab) {
+      if (tab === 'collection') {
+        document.getElementById('viewCollection').classList.remove('hidden');
+        document.getElementById('viewOrders').classList.add('hidden');
+        document.getElementById('tabBtnCollection').className = "tab-active py-3 px-6 text-sm sm:text-base flex items-center gap-2";
+        document.getElementById('tabBtnOrders').className = "text-gray-500 hover:text-pink-600 py-3 px-6 text-sm sm:text-base flex items-center gap-2";
+      } else {
+        document.getElementById('viewCollection').classList.add('hidden');
+        document.getElementById('viewOrders').classList.remove('hidden');
+        document.getElementById('tabBtnOrders').className = "tab-active py-3 px-6 text-sm sm:text-base flex items-center gap-2";
+        document.getElementById('tabBtnCollection').className = "text-gray-500 hover:text-pink-600 py-3 px-6 text-sm sm:text-base flex items-center gap-2";
+      }
+    }
+
+    // 自動計算剩餘尾款
+    function calcRemaining() {
+      const total = parseFloat(document.getElementById('ordTotalTwd').value) || 0;
+      const deposit = parseFloat(document.getElementById('ordDepositTwd').value) || 0;
+      document.getElementById('ordRemainingTwd').value = Math.max(0, total - deposit);
+    }
+
+    // 取得日幣匯率
     async function fetchRate() {
       try {
         const res = await fetch('https://open.er-api.com/v6/latest/JPY');
         const data = await res.json();
         if (data?.rates?.TWD) JPY_TO_TWD = data.rates.TWD;
-      } catch (e) {
-        console.warn('匯率載入失敗，採用預設值 0.215');
-      }
+      } catch (e) {}
     }
 
-    // 從 Google 試算表讀取資料
-    async function loadFromCloud() {
-      document.getElementById('statsBox').innerText = '雲端讀取中...';
+    // 生成角色篩選按鈕列
+    function renderFilterButtons() {
+      const bar = document.getElementById('characterFilterButtons');
+      bar.innerHTML = '';
+      const chars = ["全部", "吉伊卡哇", "小八貓", "兔兔", "小桃鼠", "栗子饅頭", "海獺", "獅薩", "古本屋"];
+
+      chars.forEach(ch => {
+        const activeClass = currentFilter === ch 
+          ? "bg-pink-500 text-white shadow-sm" 
+          : "bg-white text-gray-700 hover:bg-pink-50 border border-gray-200";
+
+        const btn = document.createElement('button');
+        btn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${activeClass}`;
+        btn.onclick = () => {
+          currentFilter = ch;
+          renderFilterButtons();
+          renderCollection();
+        };
+        btn.innerHTML = `
+          <img src="${CHAR_AVATARS[ch] || CHAR_AVATARS['其他']}" class="w-4 h-4 object-contain">
+          <span>${ch}</span>
+        `;
+        bar.appendChild(btn);
+      });
+    }
+
+    // 從 Google 雲端載入資料
+    async function loadCloudData() {
+      document.getElementById('syncStatus').innerText = '☁️ 雲端同步資料中...';
       try {
         const res = await fetch(GAS_API_URL);
-        myCollection = await res.json();
-        renderItems();
-      } catch (err) {
-        document.getElementById('statsBox').innerText = '讀取失敗';
+        allItems = await res.json();
+        renderCollection();
+        renderOrders();
+        document.getElementById('syncStatus').innerText = '';
+      } catch (e) {
+        document.getElementById('syncStatus').innerText = '雲端連線失敗，請檢查網路';
       }
     }
 
-    // 新增項目
-    async function addItem() {
-      const title = document.getElementById('itemTitle').value.trim();
-      const jpy = document.getElementById('jpyPrice').value.trim();
-      const buyPrice = document.getElementById('buyPriceTwd').value.trim();
-      const category = document.getElementById('charCategory').value;
-      let url = document.getElementById('itemUrl').value.trim();
-      const addBtn = document.getElementById('addBtn');
-      const syncStatus = document.getElementById('syncStatus');
+    // 新增收藏圖鑑
+    async function addCollectionItem() {
+      const title = document.getElementById('colTitle').value.trim();
+      const jpy = document.getElementById('colJpy').value.trim();
+      const buyPrice = document.getElementById('colBuyTwd').value.trim();
+      const category = document.getElementById('colCategory').value;
+      let img = document.getElementById('colImage').value.trim();
 
-      if (!title) return alert('請輸入「商品名稱」！');
-      if (!jpy) return alert('請輸入「日幣原價」（例如 1650）！');
+      if (!title) return alert('請填寫商品名稱！');
+      if (!jpy) return alert('請填寫日幣含稅原價 (例如 1650)！');
 
-      addBtn.disabled = true;
-      syncStatus.innerText = '☁️ 儲存中...';
+      const btn = document.getElementById('btnColAdd');
+      btn.disabled = true;
+      document.getElementById('syncStatus').innerText = '☁️ 正在存入圖鑑...';
 
-      const jpyPrice = parseFloat(jpy);
-      const buyPriceTwd = buyPrice ? parseFloat(buyPrice) : 0;
-      const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
-
-      // 若沒有提供圖片網址，使用吉伊卡哇官方圖示當預設頭貼
-      let imageUrl = url && (url.includes('.jpg') || url.includes('.png') || url.includes('.webp') || url.includes('cdn.shopify.com')) 
-                     ? url 
-                     : 'https://chiikawamarket.jp/cdn/shop/files/chiikawa_logo.png';
+      const jpyVal = parseFloat(jpy);
+      const buyVal = buyPrice ? parseFloat(buyPrice) : 0;
+      const twdOrig = Math.round(jpyVal * JPY_TO_TWD);
 
       const newItem = {
-        id: Date.now(),
+        id: "COL_" + Date.now(),
         title: title,
         category: category,
-        jpyPrice: jpyPrice,
-        twdOriginalPrice: twdOriginalPrice,
-        buyPriceTwd: buyPriceTwd,
-        imageUrl: imageUrl,
-        url: url || '#'
+        jpyPrice: jpyVal,
+        twdOriginalPrice: twdOrig,
+        buyPriceTwd: buyVal,
+        imageUrl: img || CHAR_AVATARS[category] || CHAR_AVATARS['其他'],
+        url: "#",
+        type: "collection"
       };
 
       try {
@@ -167,29 +301,81 @@
           body: JSON.stringify({ action: 'add', item: newItem })
         });
 
-        myCollection.unshift(newItem);
-        renderItems();
+        allItems.unshift(newItem);
+        renderCollection();
 
-        // 清空輸入欄位
-        document.getElementById('itemTitle').value = '';
-        document.getElementById('jpyPrice').value = '';
-        document.getElementById('buyPriceTwd').value = '';
-        document.getElementById('itemUrl').value = '';
-
-        syncStatus.innerText = '✅ 儲存成功！';
-        setTimeout(() => syncStatus.innerText = '', 3000);
-      } catch (e) {
-        alert('儲存失敗，請檢查網路連線。');
+        document.getElementById('colTitle').value = '';
+        document.getElementById('colJpy').value = '';
+        document.getElementById('colBuyTwd').value = '';
+        document.getElementById('colImage').value = '';
+        document.getElementById('syncStatus').innerText = '✅ 收藏成功存入！';
+        setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
+      } catch (err) {
+        alert('存入失敗');
       } finally {
-        addBtn.disabled = false;
+        btn.disabled = false;
+      }
+    }
+
+    // 新增預購訂單
+    async function addOrderItem() {
+      const title = document.getElementById('ordTitle').value.trim();
+      const category = document.getElementById('ordCategory').value;
+      const seller = document.getElementById('ordSeller').value.trim() || '未備註';
+      const total = parseFloat(document.getElementById('ordTotalTwd').value) || 0;
+      const deposit = parseFloat(document.getElementById('ordDepositTwd').value) || 0;
+      const status = document.getElementById('ordStatus').value;
+
+      if (!title) return alert('請填寫預購商品名稱！');
+      if (total <= 0) return alert('請填寫預購總額！');
+
+      const btn = document.getElementById('btnOrdAdd');
+      btn.disabled = true;
+      document.getElementById('syncStatus').innerText = '☁️ 正在記錄預購訂單...';
+
+      const newItem = {
+        id: "ORD_" + Date.now(),
+        title: title,
+        category: category,
+        jpyPrice: total,       // 借用欄位記錄總額
+        twdOriginalPrice: deposit, // 借用欄位記錄訂金
+        buyPriceTwd: Math.max(0, total - deposit), // 借用欄位記錄剩餘尾款
+        imageUrl: seller,      // 借用欄位記錄賣家
+        url: status,           // 借用欄位記錄訂單狀態
+        type: "order"
+      };
+
+      try {
+        await fetch(GAS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'add', item: newItem })
+        });
+
+        allItems.unshift(newItem);
+        renderOrders();
+
+        document.getElementById('ordTitle').value = '';
+        document.getElementById('ordSeller').value = '';
+        document.getElementById('ordTotalTwd').value = '';
+        document.getElementById('ordDepositTwd').value = '';
+        document.getElementById('ordRemainingTwd').value = '';
+        document.getElementById('syncStatus').innerText = '✅ 預購訂單已儲存！';
+        setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
+      } catch (err) {
+        alert('存入失敗');
+      } finally {
+        btn.disabled = false;
       }
     }
 
     // 刪除項目
     async function deleteItem(id) {
-      if (!confirm('確定要從雲端刪除這筆收藏嗎？')) return;
-      myCollection = myCollection.filter(item => item.id != id);
-      renderItems();
+      if (!confirm('確定要從雲端刪除這筆資料嗎？')) return;
+      allItems = allItems.filter(item => item.id != id);
+      renderCollection();
+      renderOrders();
 
       await fetch(GAS_API_URL, {
         method: 'POST',
@@ -199,44 +385,47 @@
       });
     }
 
-    // 渲染卡片
-    function renderItems() {
-      const filter = document.getElementById('filterCategory').value;
-      const container = document.getElementById('itemList');
+    // 渲染圖鑑列表
+    function renderCollection() {
+      const container = document.getElementById('collectionGrid');
       container.innerHTML = '';
 
       let totalSpend = 0;
       let count = 0;
-      const filtered = myCollection.filter(item => filter === 'ALL' || item.category === filter);
+
+      const collections = allItems.filter(item => !item.id.startsWith("ORD_"));
+      const filtered = collections.filter(item => currentFilter === "全部" || item.category === currentFilter);
 
       filtered.forEach(item => {
         totalSpend += parseFloat(item.buyPriceTwd) || 0;
         count++;
+
         const diff = item.buyPriceTwd - item.twdOriginalPrice;
         const diffTag = item.buyPriceTwd > 0 
-          ? (diff > 0 ? `<span class="text-red-500 font-bold">+${diff} (溢價)</span>` : `<span class="text-green-600 font-bold">${diff} (折扣)</span>`) 
+          ? (diff > 0 ? `<span class="text-red-500 font-bold">+${diff}</span>` : `<span class="text-green-600 font-bold">${diff}</span>`) 
           : '-';
 
+        const avatar = CHAR_AVATARS[item.category] || CHAR_AVATARS['其他'];
+
         const card = document.createElement('div');
-        card.className = "bg-white rounded-2xl shadow overflow-hidden flex flex-col border border-gray-100 hover:shadow-md transition";
+        card.className = "bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col border border-pink-100 hover:shadow-md transition";
         card.innerHTML = `
-          <div class="relative pt-[100%] bg-gray-50 overflow-hidden">
-            <img src="${item.imageUrl}" alt="${item.title}" class="absolute inset-0 w-full h-full object-contain p-2 hover:scale-105 transition duration-300">
-            <span class="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-0.5 rounded-full font-medium shadow">${item.category}</span>
+          <div class="relative pt-[100%] bg-pink-50/40">
+            <img src="${item.imageUrl}" class="absolute inset-0 w-full h-full object-contain p-2">
+            <span class="absolute top-2 left-2 bg-white/90 backdrop-blur text-pink-700 text-[11px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shadow-sm border border-pink-200">
+              <img src="${avatar}" class="w-3.5 h-3.5 object-contain">
+              ${item.category}
+            </span>
           </div>
-          <div class="p-4 flex-1 flex flex-col justify-between">
+          <div class="p-3 flex-1 flex flex-col justify-between">
             <div>
-              <div class="text-sm font-semibold text-slate-800 line-clamp-2 mb-2" title="${item.title}">
-                ${item.title}
-              </div>
-              <div class="text-xs text-gray-500 space-y-1 mb-3">
-                <div>官網原價：<b class="text-gray-700">¥${Number(item.jpyPrice).toLocaleString()}</b> (約 NT$ ${item.twdOriginalPrice})</div>
-                <div class="text-sm">購入金額：<b class="text-pink-600">NT$ ${item.buyPriceTwd}</b></div>
-                <div class="text-[11px]">價差比較：${diffTag}</div>
+              <div class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-2 mb-1" title="${item.title}">${item.title}</div>
+              <div class="text-[11px] text-gray-500 space-y-0.5">
+                <div>原價：¥${Number(item.jpyPrice).toLocaleString()} (約 NT$ ${item.twdOriginalPrice})</div>
+                <div>購入：<b class="text-pink-600 font-bold">NT$ ${item.buyPriceTwd}</b> (${diffTag})</div>
               </div>
             </div>
-            <div class="pt-2 border-t border-gray-100 flex justify-between items-center text-xs">
-              ${item.url && item.url !== '#' ? `<a href="${item.url}" target="_blank" class="text-blue-500 hover:underline">查看連結 ↗</a>` : '<span class="text-gray-400">無外部連結</span>'}
+            <div class="pt-2 mt-2 border-t border-gray-100 flex justify-end text-xs">
               <button onclick="deleteItem('${item.id}')" class="text-gray-400 hover:text-red-500">刪除</button>
             </div>
           </div>
@@ -244,11 +433,68 @@
         container.appendChild(card);
       });
 
-      document.getElementById('statsBox').innerText = `總計收藏：${count} 件 | 總花費：$${totalSpend.toLocaleString()} NTD`;
+      document.getElementById('colStatsCount').innerText = `圖鑑收藏：${count} 件`;
+      document.getElementById('colStatsTotal').innerText = `收藏總投入：$${totalSpend.toLocaleString()} NTD`;
     }
 
+    // 渲染預購訂單
+    function renderOrders() {
+      const container = document.getElementById('orderList');
+      container.innerHTML = '';
+
+      const orders = allItems.filter(item => item.id.startsWith("ORD_"));
+      let pendingCount = 0;
+
+      orders.forEach(item => {
+        const total = item.jpyPrice;
+        const deposit = item.twdOriginalPrice;
+        const remaining = item.buyPriceTwd;
+        const seller = item.imageUrl;
+        const status = item.url;
+        const avatar = CHAR_AVATARS[item.category] || CHAR_AVATARS['其他'];
+
+        if (status !== '已到貨收編') pendingCount++;
+
+        let statusBg = "bg-amber-100 text-amber-800 border-amber-300";
+        if (status === '已全額結清') statusBg = "bg-blue-100 text-blue-800 border-blue-300";
+        if (status === '已到貨收編') statusBg = "bg-green-100 text-green-800 border-green-300";
+        if (status === '尚未付款') statusBg = "bg-red-100 text-red-800 border-red-300";
+
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-2xl shadow-sm border border-pink-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center p-2 shrink-0 border border-pink-100">
+              <img src="${avatar}" class="w-full h-full object-contain">
+            </div>
+            <div>
+              <div class="font-bold text-sm sm:text-base text-gray-800 flex items-center gap-2">
+                <span>${item.title}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full border ${statusBg}">${status}</span>
+              </div>
+              <div class="text-xs text-gray-400 mt-0.5">
+                角色：${item.category} ｜ 賣家/管道：${seller}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0">
+            <div class="text-right text-xs">
+              <div class="text-gray-500">總額: NT$ ${total} ｜ <span class="text-pink-600 font-bold">已付訂金: NT$ ${deposit}</span></div>
+              <div class="text-sm font-extrabold text-red-500">剩餘尾款: NT$ ${remaining}</div>
+            </div>
+            <button onclick="deleteItem('${item.id}')" class="text-xs text-gray-400 hover:text-red-500 pl-2">刪除</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('unpaidBadge').innerText = pendingCount;
+    }
+
+    renderFilterButtons();
     fetchRate();
-    loadFromCloud();
+    loadCloudData();
   </script>
 </body>
 </html>
