@@ -3,67 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>吉伊卡哇 收藏圖鑑＆預購追蹤帳本</title>
+  <title>我的吉伊卡哇 收藏圖鑑＆預購追蹤本🎀</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    body {
+      font-family: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+    }
     .tab-active {
-      border-bottom: 3px solid #ec4899;
+      background-color: #fff;
       color: #ec4899;
-      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
+      border-bottom: 2px solid #ec4899;
     }
   </style>
 </head>
-<body class="bg-amber-50/60 min-h-screen text-slate-800 p-3 sm:p-8">
+<body class="bg-gradient-to-br from-pink-50 via-amber-50 to-orange-50 min-h-screen text-slate-700 p-3 sm:p-8">
 
   <div class="max-w-5xl mx-auto">
-    <!-- 頁頭 -->
-    <header class="text-center mb-6">
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-pink-600 mb-1">
-        ✨ 吉伊卡哇 收藏圖鑑 ＆ 追蹤帳本 ✨
+    <!-- 可愛頂部 Header -->
+    <header class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 bg-white/80 border border-pink-200 px-4 py-1.5 rounded-full shadow-sm mb-3">
+        <span class="animate-bounce">🌸</span>
+        <span class="text-xs font-bold tracking-wider text-pink-600">CHIIKAWA COLLECTION TRACKER</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
+        ✨ 吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
       </h1>
-      <p class="text-xs sm:text-sm text-gray-500">雲端同步備份 ☁️ 圖鑑收藏 × 預購訂金尾款管理</p>
+      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">自動載入品名美照 ☁️ 雲端同步試算表</p>
     </header>
 
-    <!-- 頂部分頁切換標籤 -->
-    <div class="flex border-b border-pink-200 mb-6 bg-white/70 rounded-t-2xl px-4 pt-2">
-      <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-3 px-6 text-sm sm:text-base flex items-center gap-2">
-        <span>🏆</span> 收藏圖鑑
-      </button>
-      <button onclick="switchTab('orders')" id="tabBtnOrders" class="text-gray-500 hover:text-pink-600 py-3 px-6 text-sm sm:text-base flex items-center gap-2">
-        <span>📦</span> 購買／預購紀錄 (<span id="unpaidBadge" class="text-red-500 font-bold">0</span>)
-      </button>
+    <!-- 分頁切換鈕 -->
+    <div class="flex justify-center mb-6">
+      <div class="bg-pink-100/60 p-1.5 rounded-2xl flex gap-2 border border-pink-200/50 shadow-inner">
+        <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200">
+          <span>🏆</span> 收藏圖鑑
+        </button>
+        <button onclick="switchTab('orders')" id="tabBtnOrders" class="py-2 px-6 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition duration-200">
+          <span>📦</span> 購買／預購紀錄 (<span id="unpaidBadge" class="text-red-500">0</span>)
+        </button>
+      </div>
     </div>
 
-    <!-- 狀態提示 -->
-    <div id="syncStatus" class="text-center text-xs font-semibold text-pink-600 mb-4 h-4"></div>
+    <!-- 狀態提醒列 -->
+    <div id="syncStatus" class="text-center text-xs font-bold text-pink-600 mb-4 h-4 transition-all"></div>
 
-    <!-- ======================= 收藏圖鑑 區塊 ======================= -->
+    <!-- ======================= 1. 收藏圖鑑區塊 ======================= -->
     <div id="viewCollection">
-      <!-- 新增收藏表單 -->
-      <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border border-pink-100">
-        <h2 class="text-sm font-bold mb-3 text-pink-700 flex items-center gap-2">
-          <span>＋</span> 新增已入手圖鑑收藏
+      <!-- 輸入面板 -->
+      <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-lg shadow-pink-100/60 mb-8 border border-pink-100">
+        <h2 class="text-sm font-extrabold mb-4 text-pink-600 flex items-center gap-2">
+          <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增實體圖鑑項目
         </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="md:col-span-2">
-            <label class="block text-xs text-gray-500 mb-1">商品名稱</label>
-            <input id="colTitle" type="text" placeholder="例如：平行世界 趴趴吊飾 小八" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
-          </div>
-          <div>
-            <label class="block text-xs text-pink-600 mb-1">日幣含稅原價 (JPY)</label>
-            <input id="colJpy" type="number" placeholder="例如: 1650" class="w-full border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
-          </div>
-          <div>
-            <label class="block text-xs text-gray-500 mb-1">台幣購入價 (NTD)</label>
-            <input id="colBuyTwd" type="number" placeholder="例如: 430" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+
+        <!-- 第一排：網址 + 一鍵自動抓品名 -->
+        <div class="mb-4">
+          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上自動解析品名與照片）</label>
+          <div class="flex gap-2">
+            <input id="colUrl" type="url" placeholder="https://chiikawamarket.jp/.../products/..." 
+                   class="flex-1 border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
+            <button onclick="autoFetchProductInfo()" id="btnFetch" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shrink-0 flex items-center gap-1.5 shadow-sm">
+              <span>🪄</span> 自動抓品名
+            </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 items-end">
+        <!-- 第二排：商品名稱、日幣原價、購入台幣、角色歸類 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名</label>
+            <input id="colTitle" type="text" placeholder="貼上網址自動帶出，或自行修改" 
+                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
+          </div>
           <div>
-            <label class="block text-xs text-gray-500 mb-1">角色歸類</label>
-            <select id="colCategory" class="w-full border rounded-xl px-3 py-2 text-sm bg-white focus:outline-pink-400">
+            <label class="block text-xs font-bold text-pink-600 mb-1">💴 日幣原價 (JPY，自己填寫)</label>
+            <input id="colJpy" type="number" placeholder="例如: 1650" 
+                   class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 bg-pink-50/30">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">💰 購入金額 (NTD)</label>
+            <input id="colBuyTwd" type="number" placeholder="例如: 430" 
+                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
+          </div>
+        </div>
+
+        <!-- 第三排：角色歸類 + 圖片預覽預留網址 + 儲存鈕 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 items-end">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類</label>
+            <select id="colCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400">
               <option value="吉伊卡哇">吉伊卡哇 (ちいかわ)</option>
               <option value="小八貓">小八貓 (ハチワレ)</option>
               <option value="兔兔">兔兔 (うさぎ)</option>
@@ -76,47 +106,50 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs text-gray-500 mb-1">圖片網址 (選填，可貼官網或推特圖)</label>
-            <input id="colImage" type="url" placeholder="留空使用專屬角色頭像" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">🖼️ 圖片網址 (自動帶出)</label>
+            <input id="colImage" type="url" placeholder="解析後自動顯示" 
+                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-500 bg-gray-50/70 focus:outline-none">
           </div>
           <div>
-            <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-xl text-sm transition">
-              儲存至收藏圖鑑
+            <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-2.5 px-4 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
+              💖 儲存至收藏圖鑑
             </button>
           </div>
         </div>
       </div>
 
-      <!-- 角色過濾按鈕欄 (附頭像) -->
-      <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons">
-        <!-- JS 動態生成帶圖片的過濾按鈕 -->
+      <!-- 角色過濾列 -->
+      <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons"></div>
+
+      <!-- 統計資訊卡片 -->
+      <div class="flex flex-wrap justify-between items-center bg-gradient-to-r from-pink-500 to-rose-400 px-5 py-3 rounded-2xl text-white font-bold shadow-md shadow-pink-200 mb-6">
+        <div class="text-sm flex items-center gap-2">
+          <span>🎒</span> <span id="colStatsCount">圖鑑數量：0 件</span>
+        </div>
+        <div class="text-sm flex items-center gap-2">
+          <span>💵</span> <span id="colStatsTotal">收藏總投入：NT$ 0</span>
+        </div>
       </div>
 
-      <!-- 統計數據條 -->
-      <div class="flex justify-between items-center bg-pink-100/70 px-4 py-2 rounded-xl text-xs sm:text-sm text-pink-700 font-medium mb-6">
-        <span id="colStatsCount">圖鑑數量：0 件</span>
-        <span id="colStatsTotal">收藏總投入：NT$ 0</span>
-      </div>
-
-      <!-- 圖鑑列表 -->
-      <div id="collectionGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+      <!-- 圖鑑清單網格 -->
+      <div id="collectionGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5"></div>
     </div>
 
-    <!-- ======================= 購買／預購追蹤 區塊 ======================= -->
+    <!-- ======================= 2. 購買／預購追蹤區塊 ======================= -->
     <div id="viewOrders" class="hidden">
-      <!-- 新增預購訂單表單 -->
-      <div class="bg-white p-5 rounded-2xl shadow-sm mb-6 border border-pink-100">
-        <h2 class="text-sm font-bold mb-3 text-pink-700 flex items-center gap-2">
-          <span>＋</span> 新增預購／代購追蹤紀錄
+      <!-- 新增預購訂單 -->
+      <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-lg shadow-pink-100/60 mb-8 border border-pink-100">
+        <h2 class="text-sm font-extrabold mb-4 text-pink-600 flex items-center gap-2">
+          <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增預購／訂金追蹤
         </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div class="md:col-span-2">
-            <label class="block text-xs text-gray-500 mb-1">預購商品名稱</label>
-            <input id="ordTitle" type="text" placeholder="例如：一番賞 A賞吉伊" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">預購商品名稱</label>
+            <input id="ordTitle" type="text" placeholder="例如：一番賞 A賞吉伊" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
           </div>
           <div>
-            <label class="block text-xs text-gray-500 mb-1">角色歸類</label>
-            <select id="ordCategory" class="w-full border rounded-xl px-3 py-2 text-sm bg-white focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">角色歸類</label>
+            <select id="ordCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-pink-400">
               <option value="吉伊卡哇">吉伊卡哇</option>
               <option value="小八貓">小八貓</option>
               <option value="兔兔">兔兔</option>
@@ -129,27 +162,27 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs text-gray-500 mb-1">跟團代購 / 賣家備註</label>
-            <input id="ordSeller" type="text" placeholder="例如：FB團購主、蝦皮" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">代購/賣家備註</label>
+            <input id="ordSeller" type="text" placeholder="例如：FB團購主、蝦皮" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
           <div>
-            <label class="block text-xs text-gray-500 mb-1">預購總額 (NTD)</label>
-            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 500" class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">預購總額 (NTD)</label>
+            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 500" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
           </div>
           <div>
-            <label class="block text-xs text-pink-600 mb-1">已付訂金 (NTD)</label>
-            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-pink-400">
+            <label class="block text-xs font-bold text-pink-600 mb-1">已付訂金 (NTD)</label>
+            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-pink-500 bg-pink-50/30">
           </div>
           <div>
-            <label class="block text-xs text-gray-500 mb-1">剩餘尾款 (自動計算)</label>
-            <input id="ordRemainingTwd" type="number" placeholder="尾款" disabled class="w-full bg-gray-100 border rounded-xl px-3 py-2 text-sm text-gray-600">
+            <label class="block text-xs font-bold text-gray-500 mb-1">剩餘尾款 (自動計算)</label>
+            <input id="ordRemainingTwd" type="number" placeholder="尾款" disabled class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-red-500">
           </div>
           <div>
-            <label class="block text-xs text-gray-500 mb-1">訂單狀態</label>
-            <select id="ordStatus" class="w-full border rounded-xl px-3 py-2 text-sm bg-white focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">訂單狀態</label>
+            <select id="ordStatus" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-pink-400">
               <option value="已付訂金">🟡 已付訂金 (待出貨)</option>
               <option value="尚未付款">🔴 尚未付款</option>
               <option value="已全額結清">🟢 已全額結清</option>
@@ -159,13 +192,13 @@
         </div>
 
         <div class="mt-4 flex justify-end">
-          <button onclick="addOrderItem()" id="btnOrdAdd" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-xl text-sm transition">
-            儲存追蹤項目
+          <button onclick="addOrderItem()" id="btnOrdAdd" class="bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-2.5 px-6 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
+            📦 儲存預購紀錄
           </button>
         </div>
       </div>
 
-      <!-- 預購訂單列表 -->
+      <!-- 預購卡片列表 -->
       <div id="orderList" class="space-y-3"></div>
     </div>
   </div>
@@ -173,7 +206,7 @@
   <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyylu0TrrufOu7fCqR8NJtPYj4Wo4viUlJvBFF6ZvbmgOZ_hOSw64mxSRWtXCEcnFM7/exec"; 
 
-    // 各角色的代表頭像 (SVG / 官方配色可愛頭貼)
+    // 可愛扁平化角色頭貼圖示
     const CHAR_AVATARS = {
       "全部": "https://api.iconify.design/fluent-emoji-flat:star.svg",
       "吉伊卡哇": "https://api.iconify.design/fluent-emoji-flat:bear.svg",
@@ -188,7 +221,7 @@
     };
 
     let JPY_TO_TWD = 0.215;
-    let allItems = []; // 包含 collection 與 order 兩種類型
+    let allItems = [];
     let currentFilter = "全部";
 
     // 切換分頁
@@ -196,24 +229,24 @@
       if (tab === 'collection') {
         document.getElementById('viewCollection').classList.remove('hidden');
         document.getElementById('viewOrders').classList.add('hidden');
-        document.getElementById('tabBtnCollection').className = "tab-active py-3 px-6 text-sm sm:text-base flex items-center gap-2";
-        document.getElementById('tabBtnOrders').className = "text-gray-500 hover:text-pink-600 py-3 px-6 text-sm sm:text-base flex items-center gap-2";
+        document.getElementById('tabBtnCollection').className = "tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnOrders').className = "py-2 px-6 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition duration-200";
       } else {
         document.getElementById('viewCollection').classList.add('hidden');
         document.getElementById('viewOrders').classList.remove('hidden');
-        document.getElementById('tabBtnOrders').className = "tab-active py-3 px-6 text-sm sm:text-base flex items-center gap-2";
-        document.getElementById('tabBtnCollection').className = "text-gray-500 hover:text-pink-600 py-3 px-6 text-sm sm:text-base flex items-center gap-2";
+        document.getElementById('tabBtnOrders').className = "tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnCollection').className = "py-2 px-6 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition duration-200";
       }
     }
 
-    // 自動計算剩餘尾款
+    // 自動計算尾款
     function calcRemaining() {
       const total = parseFloat(document.getElementById('ordTotalTwd').value) || 0;
       const deposit = parseFloat(document.getElementById('ordDepositTwd').value) || 0;
       document.getElementById('ordRemainingTwd').value = Math.max(0, total - deposit);
     }
 
-    // 取得日幣匯率
+    // 取得即時匯率
     async function fetchRate() {
       try {
         const res = await fetch('https://open.er-api.com/v6/latest/JPY');
@@ -222,7 +255,55 @@
       } catch (e) {}
     }
 
-    // 生成角色篩選按鈕列
+    // ★ 關鍵功能：自動抓取官網品名與圖片 ★
+    async function autoFetchProductInfo() {
+      const url = document.getElementById('colUrl').value.trim();
+      if (!url) return alert('請先貼上官網商品網址！');
+
+      const match = url.match(/\/products\/([^?#/]+)/);
+      if (!match) return alert('網址需包含 /products/商品名稱');
+      const handle = decodeURIComponent(match[1]);
+
+      const btn = document.getElementById('btnFetch');
+      btn.disabled = true;
+      btn.innerText = '⏳ 抓取中...';
+
+      try {
+        // 透過跨域管道讀取官網 .js 檔案
+        const target = `https://chiikawamarket.jp/products/${handle}.js`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`;
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        const product = JSON.parse(data.contents);
+
+        if (product && product.title) {
+          document.getElementById('colTitle').value = product.title;
+          const img = product.featured_image ? product.featured_image : (product.images?.[0] || '');
+          document.getElementById('colImage').value = img.startsWith('//') ? 'https:' + img : img;
+          
+          // 自動根據名稱智慧猜測角色
+          const title = product.title;
+          if (title.includes('ハチワレ') || title.includes('小八')) document.getElementById('colCategory').value = '小八貓';
+          else if (title.includes('うさぎ') || title.includes('兔兔')) document.getElementById('colCategory').value = '兔兔';
+          else if (title.includes('モモンガ') || title.includes('小桃')) document.getElementById('colCategory').value = '小桃鼠';
+          else if (title.includes('くりまんじゅう') || title.includes('栗子')) document.getElementById('colCategory').value = '栗子饅頭';
+          else if (title.includes('ラッコ') || title.includes('海獺')) document.getElementById('colCategory').value = '海獺';
+          else if (title.includes('シーサー') || title.includes('獅薩')) document.getElementById('colCategory').value = '獅薩';
+          else if (title.includes('カニ') || title.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
+          else if (title.includes('ちいかわ') || title.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
+
+          document.getElementById('syncStatus').innerText = '✨ 已成功帶出品名與圖片，請填入日幣價格！';
+          setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
+        }
+      } catch (err) {
+        alert('品名自動抓取受阻，可直接手動輸入商品品名與圖片！');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🪄</span> 自動抓品名';
+      }
+    }
+
+    // 角色過濾按鈕
     function renderFilterButtons() {
       const bar = document.getElementById('characterFilterButtons');
       bar.innerHTML = '';
@@ -230,11 +311,11 @@
 
       chars.forEach(ch => {
         const activeClass = currentFilter === ch 
-          ? "bg-pink-500 text-white shadow-sm" 
-          : "bg-white text-gray-700 hover:bg-pink-50 border border-gray-200";
+          ? "bg-pink-500 text-white shadow-md shadow-pink-200" 
+          : "bg-white/80 text-gray-700 hover:bg-pink-50 border border-pink-100";
 
         const btn = document.createElement('button');
-        btn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${activeClass}`;
+        btn.className = `flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition ${activeClass}`;
         btn.onclick = () => {
           currentFilter = ch;
           renderFilterButtons();
@@ -248,9 +329,9 @@
       });
     }
 
-    // 從 Google 雲端載入資料
+    // 從 Google 試算表載入
     async function loadCloudData() {
-      document.getElementById('syncStatus').innerText = '☁️ 雲端同步資料中...';
+      document.getElementById('syncStatus').innerText = '☁️ 雲端載入中...';
       try {
         const res = await fetch(GAS_API_URL);
         allItems = await res.json();
@@ -258,7 +339,7 @@
         renderOrders();
         document.getElementById('syncStatus').innerText = '';
       } catch (e) {
-        document.getElementById('syncStatus').innerText = '雲端連線失敗，請檢查網路';
+        document.getElementById('syncStatus').innerText = '連線失敗';
       }
     }
 
@@ -269,13 +350,14 @@
       const buyPrice = document.getElementById('colBuyTwd').value.trim();
       const category = document.getElementById('colCategory').value;
       let img = document.getElementById('colImage').value.trim();
+      const url = document.getElementById('colUrl').value.trim();
 
-      if (!title) return alert('請填寫商品名稱！');
-      if (!jpy) return alert('請填寫日幣含稅原價 (例如 1650)！');
+      if (!title) return alert('請填寫商品品名（或貼網址自動抓取）！');
+      if (!jpy) return alert('請填寫日幣原價（例如 1650）！');
 
       const btn = document.getElementById('btnColAdd');
       btn.disabled = true;
-      document.getElementById('syncStatus').innerText = '☁️ 正在存入圖鑑...';
+      document.getElementById('syncStatus').innerText = '☁️ 儲存至雲端中...';
 
       const jpyVal = parseFloat(jpy);
       const buyVal = buyPrice ? parseFloat(buyPrice) : 0;
@@ -289,7 +371,7 @@
         twdOriginalPrice: twdOrig,
         buyPriceTwd: buyVal,
         imageUrl: img || CHAR_AVATARS[category] || CHAR_AVATARS['其他'],
-        url: "#",
+        url: url || "#",
         type: "collection"
       };
 
@@ -304,11 +386,12 @@
         allItems.unshift(newItem);
         renderCollection();
 
+        document.getElementById('colUrl').value = '';
         document.getElementById('colTitle').value = '';
         document.getElementById('colJpy').value = '';
         document.getElementById('colBuyTwd').value = '';
         document.getElementById('colImage').value = '';
-        document.getElementById('syncStatus').innerText = '✅ 收藏成功存入！';
+        document.getElementById('syncStatus').innerText = '✅ 收藏成功加入圖鑑！';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
       } catch (err) {
         alert('存入失敗');
@@ -337,11 +420,11 @@
         id: "ORD_" + Date.now(),
         title: title,
         category: category,
-        jpyPrice: total,       // 借用欄位記錄總額
-        twdOriginalPrice: deposit, // 借用欄位記錄訂金
-        buyPriceTwd: Math.max(0, total - deposit), // 借用欄位記錄剩餘尾款
-        imageUrl: seller,      // 借用欄位記錄賣家
-        url: status,           // 借用欄位記錄訂單狀態
+        jpyPrice: total,
+        twdOriginalPrice: deposit,
+        buyPriceTwd: Math.max(0, total - deposit),
+        imageUrl: seller,
+        url: status,
         type: "order"
       };
 
@@ -361,7 +444,7 @@
         document.getElementById('ordTotalTwd').value = '';
         document.getElementById('ordDepositTwd').value = '';
         document.getElementById('ordRemainingTwd').value = '';
-        document.getElementById('syncStatus').innerText = '✅ 預購訂單已儲存！';
+        document.getElementById('syncStatus').innerText = '✅ 預購記錄已儲存！';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
       } catch (err) {
         alert('存入失敗');
@@ -385,7 +468,7 @@
       });
     }
 
-    // 渲染圖鑑列表
+    // 渲染收藏圖鑑列表
     function renderCollection() {
       const container = document.getElementById('collectionGrid');
       container.innerHTML = '';
@@ -393,7 +476,7 @@
       let totalSpend = 0;
       let count = 0;
 
-      const collections = allItems.filter(item => !item.id.startsWith("ORD_"));
+      const collections = allItems.filter(item => !String(item.id).startsWith("ORD_"));
       const filtered = collections.filter(item => currentFilter === "全部" || item.category === currentFilter);
 
       filtered.forEach(item => {
@@ -402,39 +485,43 @@
 
         const diff = item.buyPriceTwd - item.twdOriginalPrice;
         const diffTag = item.buyPriceTwd > 0 
-          ? (diff > 0 ? `<span class="text-red-500 font-bold">+${diff}</span>` : `<span class="text-green-600 font-bold">${diff}</span>`) 
+          ? (diff > 0 ? `<span class="text-rose-500 font-extrabold">+${diff} (溢價)</span>` : `<span class="text-emerald-600 font-extrabold">${diff} (折扣)</span>`) 
           : '-';
 
         const avatar = CHAR_AVATARS[item.category] || CHAR_AVATARS['其他'];
 
         const card = document.createElement('div');
-        card.className = "bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col border border-pink-100 hover:shadow-md transition";
+        card.className = "bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col border border-pink-100/80 group";
         card.innerHTML = `
-          <div class="relative pt-[100%] bg-pink-50/40">
-            <img src="${item.imageUrl}" class="absolute inset-0 w-full h-full object-contain p-2">
-            <span class="absolute top-2 left-2 bg-white/90 backdrop-blur text-pink-700 text-[11px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shadow-sm border border-pink-200">
+          <div class="relative pt-[100%] bg-gradient-to-b from-pink-50/50 to-white">
+            <img src="${item.imageUrl}" class="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition duration-300">
+            <span class="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur text-pink-700 text-[11px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-sm border border-pink-100">
               <img src="${avatar}" class="w-3.5 h-3.5 object-contain">
               ${item.category}
             </span>
           </div>
-          <div class="p-3 flex-1 flex flex-col justify-between">
+          <div class="p-3.5 flex-1 flex flex-col justify-between">
             <div>
-              <div class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-2 mb-1" title="${item.title}">${item.title}</div>
-              <div class="text-[11px] text-gray-500 space-y-0.5">
-                <div>原價：¥${Number(item.jpyPrice).toLocaleString()} (約 NT$ ${item.twdOriginalPrice})</div>
-                <div>購入：<b class="text-pink-600 font-bold">NT$ ${item.buyPriceTwd}</b> (${diffTag})</div>
+              <div class="text-xs sm:text-sm font-bold text-gray-800 line-clamp-2 mb-2 group-hover:text-pink-600 transition" title="${item.title}">
+                ${item.title}
+              </div>
+              <div class="text-[11px] text-gray-500 space-y-1 bg-amber-50/50 p-2 rounded-xl">
+                <div>官網原價：<b class="text-gray-700">¥${Number(item.jpyPrice).toLocaleString()}</b> <span class="text-[10px] text-gray-400">(約 NT$ ${item.twdOriginalPrice})</span></div>
+                <div>購入價格：<b class="text-pink-600 font-bold">NT$ ${item.buyPriceTwd}</b></div>
+                <div>價差比較：${diffTag}</div>
               </div>
             </div>
-            <div class="pt-2 mt-2 border-t border-gray-100 flex justify-end text-xs">
-              <button onclick="deleteItem('${item.id}')" class="text-gray-400 hover:text-red-500">刪除</button>
+            <div class="pt-2 mt-2 border-t border-gray-100 flex justify-between items-center text-xs">
+              ${item.url && item.url !== '#' ? `<a href="${item.url}" target="_blank" class="text-pink-400 hover:text-pink-600 font-bold text-[11px]">官網連結 ↗</a>` : '<span></span>'}
+              <button onclick="deleteItem('${item.id}')" class="text-gray-300 hover:text-rose-500 transition">刪除</button>
             </div>
           </div>
         `;
         container.appendChild(card);
       });
 
-      document.getElementById('colStatsCount').innerText = `圖鑑收藏：${count} 件`;
-      document.getElementById('colStatsTotal').innerText = `收藏總投入：$${totalSpend.toLocaleString()} NTD`;
+      document.getElementById('colStatsCount').innerText = `圖鑑數量：${count} 件`;
+      document.getElementById('colStatsTotal').innerText = `收藏總投入：NT$ ${totalSpend.toLocaleString()}`;
     }
 
     // 渲染預購訂單
@@ -442,7 +529,7 @@
       const container = document.getElementById('orderList');
       container.innerHTML = '';
 
-      const orders = allItems.filter(item => item.id.startsWith("ORD_"));
+      const orders = allItems.filter(item => String(item.id).startsWith("ORD_"));
       let pendingCount = 0;
 
       orders.forEach(item => {
@@ -457,33 +544,33 @@
 
         let statusBg = "bg-amber-100 text-amber-800 border-amber-300";
         if (status === '已全額結清') statusBg = "bg-blue-100 text-blue-800 border-blue-300";
-        if (status === '已到貨收編') statusBg = "bg-green-100 text-green-800 border-green-300";
-        if (status === '尚未付款') statusBg = "bg-red-100 text-red-800 border-red-300";
+        if (status === '已到貨收編') statusBg = "bg-emerald-100 text-emerald-800 border-emerald-300";
+        if (status === '尚未付款') statusBg = "bg-rose-100 text-rose-800 border-rose-300";
 
         const card = document.createElement('div');
-        card.className = "bg-white p-4 rounded-2xl shadow-sm border border-pink-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+        card.className = "bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-pink-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4";
         card.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center p-2 shrink-0 border border-pink-100">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center p-2.5 shrink-0 border border-pink-100 shadow-inner">
               <img src="${avatar}" class="w-full h-full object-contain">
             </div>
             <div>
-              <div class="font-bold text-sm sm:text-base text-gray-800 flex items-center gap-2">
+              <div class="font-extrabold text-sm sm:text-base text-gray-800 flex items-center gap-2">
                 <span>${item.title}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full border ${statusBg}">${status}</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border ${statusBg}">${status}</span>
               </div>
-              <div class="text-xs text-gray-400 mt-0.5">
-                角色：${item.category} ｜ 賣家/管道：${seller}
+              <div class="text-xs text-gray-400 mt-1">
+                角色：<span class="text-pink-600 font-bold">${item.category}</span> ｜ 來源管道：${seller}
               </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0">
+          <div class="flex items-center justify-between sm:justify-end gap-5 border-t sm:border-t-0 pt-3 sm:pt-0">
             <div class="text-right text-xs">
-              <div class="text-gray-500">總額: NT$ ${total} ｜ <span class="text-pink-600 font-bold">已付訂金: NT$ ${deposit}</span></div>
-              <div class="text-sm font-extrabold text-red-500">剩餘尾款: NT$ ${remaining}</div>
+              <div class="text-gray-500 font-medium">總額: NT$ ${total} ｜ <span class="text-pink-600 font-bold">已付訂金: NT$ ${deposit}</span></div>
+              <div class="text-sm font-extrabold text-rose-500 mt-0.5">剩餘尾款: NT$ ${remaining}</div>
             </div>
-            <button onclick="deleteItem('${item.id}')" class="text-xs text-gray-400 hover:text-red-500 pl-2">刪除</button>
+            <button onclick="deleteItem('${item.id}')" class="text-xs text-gray-300 hover:text-rose-500 pl-2 transition">刪除</button>
           </div>
         `;
         container.appendChild(card);
