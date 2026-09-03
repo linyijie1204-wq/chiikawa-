@@ -11,23 +11,30 @@
   <div class="max-w-5xl mx-auto">
     <header class="text-center mb-8">
       <h1 class="text-3xl font-bold text-pink-600 mb-2">✨ 吉伊卡哇吊飾收藏記錄本 ✨</h1>
-      <p class="text-sm text-gray-500">Google 雲端直連穩定版 ☁️</p>
+      <p class="text-sm text-gray-500">雲端同步版：手機、平板隨時同步更新 ☁️</p>
     </header>
 
     <!-- 輸入控制板 -->
     <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-pink-100">
       <h2 class="text-lg font-bold mb-4 text-gray-700">＋ 新增收藏項目</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-2">
           <label class="block text-xs font-semibold text-gray-500 mb-1">官網商品網址</label>
           <input id="productUrl" type="url" placeholder="https://chiikawamarket.jp/.../products/..." 
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-pink-600 mb-1">日幣含稅原價 (留空自動抓)</label>
+          <input id="customJpy" type="number" placeholder="例如: 1650" 
+                 class="w-full border border-pink-200 rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1">你的購入金額 (NTD)</label>
           <input id="buyPriceTwd" type="number" placeholder="例如: 430" 
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1">角色歸類</label>
           <select id="charCategory" class="w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-pink-400">
@@ -42,12 +49,12 @@
             <option value="其他">其他 / 多人款</option>
           </select>
         </div>
-      </div>
-      <div class="mt-4 flex justify-between items-center">
-        <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
-        <button id="addBtn" onclick="addItem()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
-          解析並同步儲存
-        </button>
+        <div class="md:col-span-3 flex justify-between items-end">
+          <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
+          <button id="addBtn" onclick="addItem()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+            解析並同步儲存
+          </button>
+        </div>
       </div>
     </div>
 
@@ -103,30 +110,41 @@
         renderItems();
       } catch (err) {
         document.getElementById('statsBox').innerText = '讀取失敗';
-        console.error(err);
       }
     }
 
-    // 透過 Google Apps Script 伺服器代抓，避開代理阻擋
-    async function fetchProductDirectly(handle) {
-      // 優先管道：corsproxy.io
-      try {
-        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://chiikawamarket.jp/products/' + handle + '.js')}`);
-        if (res.ok) return await res.json();
-      } catch (e) {}
+    // 多管道跨域抓取
+    async function tryFetchProduct(handle) {
+      const urls = [
+        `https://chiikawamarket.jp/products/${handle}.js`,
+        `https://chiikawamarket.jp/products/${handle}.json`
+      ];
 
-      // 備援管道：直接請 Google 後端抓取
-      const gasRes = await fetch(GAS_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'scrape', handle: handle })
-      });
-      return await gasRes.json();
+      for (let target of urls) {
+        try {
+          const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(target)}`);
+          if (res.ok) {
+            const data = await res.json();
+            return data.product ? data.product : data;
+          }
+        } catch (e) {}
+
+        try {
+          const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
+          const data = await res.json();
+          if (data?.contents) {
+            const parsed = JSON.parse(data.contents);
+            return parsed.product ? parsed.product : parsed;
+          }
+        } catch (e) {}
+      }
+      throw new Error('All proxies failed');
     }
 
     async function addItem() {
       const urlInput = document.getElementById('productUrl').value.trim();
       const buyPrice = document.getElementById('buyPriceTwd').value.trim();
+      const customJpy = document.getElementById('customJpy').value.trim();
       const category = document.getElementById('charCategory').value;
       const addBtn = document.getElementById('addBtn');
       const syncStatus = document.getElementById('syncStatus');
@@ -139,34 +157,55 @@
       const productHandle = decodeURIComponent(match[1]);
 
       addBtn.disabled = true;
-      syncStatus.innerText = '⏳ 正在讀取官網含稅原價...';
+      syncStatus.innerText = '⏳ 正在讀取官網圖片與資料...';
+
+      let title = '';
+      let jpyPrice = 0;
+      let imageUrl = '';
 
       try {
-        const product = await fetchProductDirectly(productHandle);
-        if (!product || (!product.title && !product.price)) throw new Error('解析失敗');
+        const product = await tryFetchProduct(productHandle);
+        title = product.title || '吉伊卡哇周邊';
+        imageUrl = product.featured_image ? product.featured_image : (product.images?.[0]?.src || product.images?.[0] || '');
 
-        const title = product.title;
-        const imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
+        if (customJpy) {
+          jpyPrice = parseFloat(customJpy);
+        } else {
+          let p = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
+          p = parseFloat(p);
+          let parsed = p > 10000 ? Math.round(p / 100) : Math.round(p);
+          // 針對未稅 1500 自動轉為含稅 1650
+          if (parsed === 1500) parsed = 1650;
+          jpyPrice = parsed;
+        }
+      } catch (err) {
+        console.warn('官網代理連線受阻，啟動輔助輸入');
+        title = prompt('官網連線較慢，請確認/輸入商品名稱：', '吉伊卡哇吊飾');
+        if (!title) {
+          addBtn.disabled = false;
+          syncStatus.innerText = '';
+          return;
+        }
+        const promptPrice = customJpy || prompt('請輸入日幣含稅原價：', '1650');
+        jpyPrice = parseFloat(promptPrice) || 1650;
+        imageUrl = 'https://chiikawamarket.jp/cdn/shop/files/chiikawa_logo.png';
+      }
 
-        let p = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
-        p = parseFloat(p);
-        let jpyPrice = p > 10000 ? Math.round(p / 100) : Math.round(p);
-        if (jpyPrice === 1500) jpyPrice = 1650;
+      const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
 
-        const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
+      const newItem = {
+        id: Date.now(),
+        title: title,
+        category: category,
+        jpyPrice: jpyPrice,
+        twdOriginalPrice: twdOriginalPrice,
+        buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
+        imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
+        url: urlInput
+      };
 
-        const newItem = {
-          id: Date.now(),
-          title: title,
-          category: category,
-          jpyPrice: jpyPrice,
-          twdOriginalPrice: twdOriginalPrice,
-          buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
-          imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
-          url: urlInput
-        };
-
-        syncStatus.innerText = '☁️ 正在同步存入 Google 試算表...';
+      syncStatus.innerText = '☁️ 正在同步存入 Google 試算表...';
+      try {
         await fetch(GAS_API_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -178,14 +217,13 @@
         renderItems();
         document.getElementById('productUrl').value = '';
         document.getElementById('buyPriceTwd').value = '';
+        document.getElementById('customJpy').value = '';
         syncStatus.innerText = '✅ 同步成功！';
         setTimeout(() => syncStatus.innerText = '', 3000);
-      } catch (err) {
-        console.error(err);
-        alert('抓取失敗！如果官網防護較嚴格，請將該商品的網址貼給我，我幫你直接確認格式。');
+      } catch (e) {
+        alert('存入雲端失敗，請檢查網路連線。');
       } finally {
         addBtn.disabled = false;
-        syncStatus.innerText = '';
       }
     }
 
