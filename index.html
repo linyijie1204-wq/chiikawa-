@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的吉伊卡哇 收藏圖鑑＆預購追蹤本🎀</title>
+  <title>吉伊卡哇 收藏圖鑑＆追蹤帳本</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,19 +23,18 @@
 <body class="bg-gradient-to-br from-pink-50 via-amber-50 to-orange-50 min-h-screen text-slate-700 p-3 sm:p-8">
 
   <div class="max-w-5xl mx-auto">
-    <!-- 可愛頂部 Header -->
     <header class="text-center mb-8">
       <div class="inline-flex items-center gap-2 bg-white/80 border border-pink-200 px-4 py-1.5 rounded-full shadow-sm mb-3">
-        <span class="animate-bounce">🌸</span>
+        <span>🌸</span>
         <span class="text-xs font-bold tracking-wider text-pink-600">CHIIKAWA COLLECTION TRACKER</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
         ✨ 吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
       </h1>
-      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">自動載入品名美照 ☁️ 雲端同步試算表</p>
+      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上網址自動填入品名 ☁️ 雲端同步試算表</p>
     </header>
 
-    <!-- 分頁切換鈕 -->
+    <!-- 分頁切換 -->
     <div class="flex justify-center mb-6">
       <div class="bg-pink-100/60 p-1.5 rounded-2xl flex gap-2 border border-pink-200/50 shadow-inner">
         <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200">
@@ -47,40 +46,34 @@
       </div>
     </div>
 
-    <!-- 狀態提醒列 -->
-    <div id="syncStatus" class="text-center text-xs font-bold text-pink-600 mb-4 h-4 transition-all"></div>
+    <!-- 狀態提示 -->
+    <div id="syncStatus" class="text-center text-xs font-bold text-pink-600 mb-4 h-4"></div>
 
-    <!-- ======================= 1. 收藏圖鑑區塊 ======================= -->
+    <!-- 1. 收藏圖鑑 -->
     <div id="viewCollection">
-      <!-- 輸入面板 -->
       <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-lg shadow-pink-100/60 mb-8 border border-pink-100">
         <h2 class="text-sm font-extrabold mb-4 text-pink-600 flex items-center gap-2">
           <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增實體圖鑑項目
         </h2>
 
-        <!-- 第一排：網址 + 一鍵自動抓品名 -->
+        <!-- 第一排：貼網址 (自動觸發抓取) -->
         <div class="mb-4">
-          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上自動解析品名與照片）</label>
-          <div class="flex gap-2">
-            <input id="colUrl" type="url" placeholder="https://chiikawamarket.jp/.../products/..." 
-                   class="flex-1 border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
-            <button onclick="autoFetchProductInfo()" id="btnFetch" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shrink-0 flex items-center gap-1.5 shadow-sm">
-              <span>🪄</span> 自動抓品名
-            </button>
-          </div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上後會自動抓品名與照片）</label>
+          <input id="colUrl" type="url" oninput="handleUrlAutoFetch()" onpaste="setTimeout(handleUrlAutoFetch, 100)" placeholder="https://chiikawamarket.jp/.../products/..." 
+                 class="w-full border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
         </div>
 
-        <!-- 第二排：商品名稱、日幣原價、購入台幣、角色歸類 -->
+        <!-- 第二排：商品名稱 (自動帶出)、日幣自填、台幣購入 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名</label>
-            <input id="colTitle" type="text" placeholder="貼上網址自動帶出，或自行修改" 
-                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
+            <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動填入)</label>
+            <input id="colTitle" type="text" placeholder="貼上網址後自動帶入..." 
+                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-pink-50/20 focus:outline-none focus:ring-2 focus:ring-pink-400">
           </div>
           <div>
-            <label class="block text-xs font-bold text-pink-600 mb-1">💴 日幣原價 (JPY，自己填寫)</label>
+            <label class="block text-xs font-bold text-pink-600 mb-1">💴 日幣含稅原價 (自己寫)</label>
             <input id="colJpy" type="number" placeholder="例如: 1650" 
-                   class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 bg-pink-50/30">
+                   class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 bg-pink-50/40">
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">💰 購入金額 (NTD)</label>
@@ -89,10 +82,10 @@
           </div>
         </div>
 
-        <!-- 第三排：角色歸類 + 圖片預覽預留網址 + 儲存鈕 -->
+        <!-- 第三排：角色歸類、隱藏圖片網址、儲存按鈕 -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 items-end">
           <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類</label>
+            <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類 (自動判定)</label>
             <select id="colCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400">
               <option value="吉伊卡哇">吉伊卡哇 (ちいかわ)</option>
               <option value="小八貓">小八貓 (ハチワレ)</option>
@@ -105,12 +98,10 @@
               <option value="其他">其他 / 多人款</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">🖼️ 圖片網址 (自動帶出)</label>
-            <input id="colImage" type="url" placeholder="解析後自動顯示" 
-                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-500 bg-gray-50/70 focus:outline-none">
+          <div class="hidden sm:block">
+            <input id="colImage" type="hidden">
           </div>
-          <div>
+          <div class="sm:col-start-3">
             <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-2.5 px-4 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
               💖 儲存至收藏圖鑑
             </button>
@@ -118,10 +109,10 @@
         </div>
       </div>
 
-      <!-- 角色過濾列 -->
+      <!-- 角色過濾按鈕 -->
       <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons"></div>
 
-      <!-- 統計資訊卡片 -->
+      <!-- 數據統計 -->
       <div class="flex flex-wrap justify-between items-center bg-gradient-to-r from-pink-500 to-rose-400 px-5 py-3 rounded-2xl text-white font-bold shadow-md shadow-pink-200 mb-6">
         <div class="text-sm flex items-center gap-2">
           <span>🎒</span> <span id="colStatsCount">圖鑑數量：0 件</span>
@@ -131,13 +122,11 @@
         </div>
       </div>
 
-      <!-- 圖鑑清單網格 -->
       <div id="collectionGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5"></div>
     </div>
 
-    <!-- ======================= 2. 購買／預購追蹤區塊 ======================= -->
+    <!-- 2. 預購追蹤 -->
     <div id="viewOrders" class="hidden">
-      <!-- 新增預購訂單 -->
       <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-lg shadow-pink-100/60 mb-8 border border-pink-100">
         <h2 class="text-sm font-extrabold mb-4 text-pink-600 flex items-center gap-2">
           <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增預購／訂金追蹤
@@ -163,7 +152,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">代購/賣家備註</label>
-            <input id="ordSeller" type="text" placeholder="例如：FB團購主、蝦皮" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
+            <input id="ordSeller" type="text" placeholder="例如：FB社團、蝦皮" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
           </div>
         </div>
 
@@ -174,7 +163,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-pink-600 mb-1">已付訂金 (NTD)</label>
-            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-pink-500 bg-pink-50/30">
+            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-pink-500 bg-pink-50/40">
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">剩餘尾款 (自動計算)</label>
@@ -198,7 +187,6 @@
         </div>
       </div>
 
-      <!-- 預購卡片列表 -->
       <div id="orderList" class="space-y-3"></div>
     </div>
   </div>
@@ -206,7 +194,6 @@
   <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyylu0TrrufOu7fCqR8NJtPYj4Wo4viUlJvBFF6ZvbmgOZ_hOSw64mxSRWtXCEcnFM7/exec"; 
 
-    // 可愛扁平化角色頭貼圖示
     const CHAR_AVATARS = {
       "全部": "https://api.iconify.design/fluent-emoji-flat:star.svg",
       "吉伊卡哇": "https://api.iconify.design/fluent-emoji-flat:bear.svg",
@@ -223,8 +210,8 @@
     let JPY_TO_TWD = 0.215;
     let allItems = [];
     let currentFilter = "全部";
+    let lastFetchedUrl = "";
 
-    // 切換分頁
     function switchTab(tab) {
       if (tab === 'collection') {
         document.getElementById('viewCollection').classList.remove('hidden');
@@ -239,14 +226,12 @@
       }
     }
 
-    // 自動計算尾款
     function calcRemaining() {
       const total = parseFloat(document.getElementById('ordTotalTwd').value) || 0;
       const deposit = parseFloat(document.getElementById('ordDepositTwd').value) || 0;
       document.getElementById('ordRemainingTwd').value = Math.max(0, total - deposit);
     }
 
-    // 取得即時匯率
     async function fetchRate() {
       try {
         const res = await fetch('https://open.er-api.com/v6/latest/JPY');
@@ -255,33 +240,40 @@
       } catch (e) {}
     }
 
-    // ★ 關鍵功能：自動抓取官網品名與圖片 ★
-    async function autoFetchProductInfo() {
+    // 核心：貼上網址自動解析品名與圖片
+    async function handleUrlAutoFetch() {
       const url = document.getElementById('colUrl').value.trim();
-      if (!url) return alert('請先貼上官網商品網址！');
+      if (!url || url === lastFetchedUrl) return;
 
       const match = url.match(/\/products\/([^?#/]+)/);
-      if (!match) return alert('網址需包含 /products/商品名稱');
-      const handle = decodeURIComponent(match[1]);
+      if (!match) return;
 
-      const btn = document.getElementById('btnFetch');
-      btn.disabled = true;
-      btn.innerText = '⏳ 抓取中...';
+      const handle = decodeURIComponent(match[1]);
+      lastFetchedUrl = url;
+      document.getElementById('syncStatus').innerText = '⏳ 正在自動抓取品名與照片...';
 
       try {
-        // 透過跨域管道讀取官網 .js 檔案
         const target = `https://chiikawamarket.jp/products/${handle}.js`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`;
-        const res = await fetch(proxyUrl);
-        const data = await res.json();
-        const product = JSON.parse(data.contents);
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(target)}`;
+        let product = null;
+
+        try {
+          const res = await fetch(proxyUrl);
+          if (res.ok) product = await res.json();
+        } catch (e) {}
+
+        if (!product) {
+          const res2 = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
+          const data2 = await res2.json();
+          if (data2.contents) product = JSON.parse(data2.contents);
+        }
 
         if (product && product.title) {
           document.getElementById('colTitle').value = product.title;
-          const img = product.featured_image ? product.featured_image : (product.images?.[0] || '');
+          const img = product.featured_image || product.images?.[0] || '';
           document.getElementById('colImage').value = img.startsWith('//') ? 'https:' + img : img;
-          
-          // 自動根據名稱智慧猜測角色
+
+          // 智慧選擇角色
           const title = product.title;
           if (title.includes('ハチワレ') || title.includes('小八')) document.getElementById('colCategory').value = '小八貓';
           else if (title.includes('うさぎ') || title.includes('兔兔')) document.getElementById('colCategory').value = '兔兔';
@@ -292,18 +284,14 @@
           else if (title.includes('カニ') || title.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
           else if (title.includes('ちいかわ') || title.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
 
-          document.getElementById('syncStatus').innerText = '✨ 已成功帶出品名與圖片，請填入日幣價格！';
+          document.getElementById('syncStatus').innerText = '✨ 品名與圖片已自動帶入！';
           setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
         }
       } catch (err) {
-        alert('品名自動抓取受阻，可直接手動輸入商品品名與圖片！');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>🪄</span> 自動抓品名';
+        document.getElementById('syncStatus').innerText = '';
       }
     }
 
-    // 角色過濾按鈕
     function renderFilterButtons() {
       const bar = document.getElementById('characterFilterButtons');
       bar.innerHTML = '';
@@ -329,7 +317,6 @@
       });
     }
 
-    // 從 Google 試算表載入
     async function loadCloudData() {
       document.getElementById('syncStatus').innerText = '☁️ 雲端載入中...';
       try {
@@ -343,17 +330,24 @@
       }
     }
 
-    // 新增收藏圖鑑
     async function addCollectionItem() {
-      const title = document.getElementById('colTitle').value.trim();
+      let title = document.getElementById('colTitle').value.trim();
       const jpy = document.getElementById('colJpy').value.trim();
       const buyPrice = document.getElementById('colBuyTwd').value.trim();
       const category = document.getElementById('colCategory').value;
       let img = document.getElementById('colImage').value.trim();
       const url = document.getElementById('colUrl').value.trim();
 
-      if (!title) return alert('請填寫商品品名（或貼網址自動抓取）！');
       if (!jpy) return alert('請填寫日幣原價（例如 1650）！');
+
+      // 若使用者直接按儲存而品名尚未抓好，自動補抓一次
+      if (!title && url) {
+        await handleUrlAutoFetch();
+        title = document.getElementById('colTitle').value.trim();
+        img = document.getElementById('colImage').value.trim();
+      }
+
+      if (!title) title = `${category} 周邊吊飾`;
 
       const btn = document.getElementById('btnColAdd');
       btn.disabled = true;
@@ -391,6 +385,7 @@
         document.getElementById('colJpy').value = '';
         document.getElementById('colBuyTwd').value = '';
         document.getElementById('colImage').value = '';
+        lastFetchedUrl = "";
         document.getElementById('syncStatus').innerText = '✅ 收藏成功加入圖鑑！';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
       } catch (err) {
@@ -400,7 +395,6 @@
       }
     }
 
-    // 新增預購訂單
     async function addOrderItem() {
       const title = document.getElementById('ordTitle').value.trim();
       const category = document.getElementById('ordCategory').value;
@@ -453,7 +447,6 @@
       }
     }
 
-    // 刪除項目
     async function deleteItem(id) {
       if (!confirm('確定要從雲端刪除這筆資料嗎？')) return;
       allItems = allItems.filter(item => item.id != id);
@@ -468,7 +461,6 @@
       });
     }
 
-    // 渲染收藏圖鑑列表
     function renderCollection() {
       const container = document.getElementById('collectionGrid');
       container.innerHTML = '';
@@ -524,7 +516,6 @@
       document.getElementById('colStatsTotal').innerText = `收藏總投入：NT$ ${totalSpend.toLocaleString()}`;
     }
 
-    // 渲染預購訂單
     function renderOrders() {
       const container = document.getElementById('orderList');
       container.innerHTML = '';
