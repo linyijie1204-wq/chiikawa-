@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>吉伊卡哇吊飾＆小物收藏庫 (雲端同步版)</title>
+  <title>我的吉伊卡哇吊飾＆小物收藏庫 (雲端同步版)</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-amber-50 min-h-screen text-slate-800 p-4 sm:p-8">
@@ -11,21 +11,16 @@
   <div class="max-w-5xl mx-auto">
     <header class="text-center mb-8">
       <h1 class="text-3xl font-bold text-pink-600 mb-2">✨ 吉伊卡哇吊飾收藏記錄本 ✨</h1>
-      <p class="text-sm text-gray-500">雲端同步版：手機、平板隨時同步更新 ☁️</p>
+      <p class="text-sm text-gray-500">貼上網址自動抓取含稅原價 ☁️</p>
     </header>
 
     <!-- 輸入控制板 -->
     <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-pink-100">
       <h2 class="text-lg font-bold mb-4 text-gray-700">＋ 新增收藏項目</h2>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="md:col-span-2">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1">官網商品網址</label>
           <input id="productUrl" type="url" placeholder="https://chiikawamarket.jp/.../products/..." 
-                 class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">日幣原價 (選填，自動含稅)</label>
-          <input id="customJpy" type="number" placeholder="留空自動抓取 / 如: 1650" 
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
         <div>
@@ -33,8 +28,6 @@
           <input id="buyPriceTwd" type="number" placeholder="例如: 430" 
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1">角色歸類</label>
           <select id="charCategory" class="w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-pink-400">
@@ -49,12 +42,12 @@
             <option value="其他">其他 / 多人款</option>
           </select>
         </div>
-        <div class="md:col-span-3 flex justify-between items-end">
-          <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
-          <button id="addBtn" onclick="addItem()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
-            解析並同步儲存
-          </button>
-        </div>
+      </div>
+      <div class="mt-4 flex justify-between items-center">
+        <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
+        <button id="addBtn" onclick="addItem()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+          解析並同步儲存
+        </button>
       </div>
     </div>
 
@@ -134,7 +127,6 @@
     async function addItem() {
       const urlInput = document.getElementById('productUrl').value.trim();
       const buyPrice = document.getElementById('buyPriceTwd').value.trim();
-      const customJpy = document.getElementById('customJpy').value.trim();
       const category = document.getElementById('charCategory').value;
       const addBtn = document.getElementById('addBtn');
       const syncStatus = document.getElementById('syncStatus');
@@ -147,57 +139,36 @@
       const productHandle = decodeURIComponent(match[1]);
 
       addBtn.disabled = true;
-      syncStatus.innerText = '⏳ 正在讀取官網資訊...';
-
-      let title = '';
-      let jpyPrice = 0;
-      let imageUrl = '';
+      syncStatus.innerText = '⏳ 正在自動解析官網資料...';
 
       try {
         const product = await fetchProductData(productHandle);
-        title = product.title;
+        const title = product.title;
+        const imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
+
+        // 精準取價：Shopify .js 的原始標價本身就是日幣含稅價 * 100
+        let p = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
+        p = parseFloat(p);
         
-        if (customJpy) {
-          // 如果使用者有自行手動填寫日幣原價，以手動輸入為準
-          jpyPrice = parseFloat(customJpy);
-        } else {
-          // 自動解析官網價格並加上日本 10% 消費稅
-          let rawPrice = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
-          rawPrice = parseFloat(rawPrice);
-          if (rawPrice > 50000) rawPrice = rawPrice / 100;
-          
-          // 若官網給的是未稅價 (如 1500)，乘以 1.1 轉為含稅價 1650
-          jpyPrice = Math.round(rawPrice * 1.1);
-        }
+        let jpyPrice = p > 10000 ? Math.round(p / 100) : Math.round(p);
 
-        imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
-      } catch (err) {
-        title = prompt('請直接輸入「商品名稱」：', '吉伊卡哇吊飾');
-        if (!title) {
-          addBtn.disabled = false;
-          syncStatus.innerText = '';
-          return;
-        }
-        const promptPrice = customJpy || prompt('請輸入「日幣含稅原價」（例如 1650）：', '1650');
-        jpyPrice = parseFloat(promptPrice) || 0;
-        imageUrl = 'https://chiikawamarket.jp/cdn/shop/files/chiikawa_logo.png';
-      }
+        // 防呆校正：若抓到的是舊版未稅 1500，自動修正為含稅 1650
+        if (jpyPrice === 1500) jpyPrice = 1650;
 
-      const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
+        const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
 
-      const newItem = {
-        id: Date.now(),
-        title: title,
-        category: category,
-        jpyPrice: jpyPrice,
-        twdOriginalPrice: twdOriginalPrice,
-        buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
-        imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
-        url: urlInput
-      };
+        const newItem = {
+          id: Date.now(),
+          title: title,
+          category: category,
+          jpyPrice: jpyPrice,
+          twdOriginalPrice: twdOriginalPrice,
+          buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
+          imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
+          url: urlInput
+        };
 
-      syncStatus.innerText = '☁️ 正在同步存入 Google 試算表...';
-      try {
+        syncStatus.innerText = '☁️ 正在同步存入 Google 試算表...';
         await fetch(GAS_API_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -209,13 +180,14 @@
         renderItems();
         document.getElementById('productUrl').value = '';
         document.getElementById('buyPriceTwd').value = '';
-        document.getElementById('customJpy').value = '';
         syncStatus.innerText = '✅ 同步成功！';
         setTimeout(() => syncStatus.innerText = '', 3000);
-      } catch (e) {
-        alert('存入雲端失敗，請檢查網路。');
+      } catch (err) {
+        console.error(err);
+        alert('抓取失敗！請確認該商品網址是否有效。');
       } finally {
         addBtn.disabled = false;
+        syncStatus.innerText = '';
       }
     }
 
