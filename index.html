@@ -21,7 +21,7 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="md:col-span-2">
           <label class="block text-xs font-semibold text-gray-500 mb-1">官網商品網址</label>
-          <input id="productUrl" type="url" placeholder="https://chiikawamarket.jp/zh-hant/products/..." 
+          <input id="productUrl" type="url" placeholder="https://chiikawamarket.jp/.../products/..." 
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
         <div>
@@ -82,13 +82,11 @@
   </div>
 
   <script>
-    // 你的專屬 Google Apps Script 雲端同步網址
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyylu0TrrufOu7fCqR8NJtPYj4Wo4viUlJvBFF6ZvbmgOZ_hOSw64mxSRWtXCEcnFM7/exec"; 
 
-    let JPY_TO_TWD = 0.215; // 預設匯率
+    let JPY_TO_TWD = 0.215;
     let myCollection = [];
 
-    // 自動取得即時日幣匯率
     async function fetchRate() {
       try {
         const res = await fetch('https://open.er-api.com/v6/latest/JPY');
@@ -99,7 +97,6 @@
       }
     }
 
-    // 從 Google 試算表讀取資料
     async function loadFromCloud() {
       document.getElementById('statsBox').innerText = '雲端讀取中...';
       try {
@@ -112,7 +109,6 @@
       }
     }
 
-    // 新增收藏並存入雲端
     async function addItem() {
       const urlInput = document.getElementById('productUrl').value.trim();
       const buyPrice = document.getElementById('buyPriceTwd').value.trim();
@@ -120,25 +116,37 @@
       const addBtn = document.getElementById('addBtn');
       const syncStatus = document.getElementById('syncStatus');
 
-      if (!urlInput) return alert('請貼上官網商品網址！');
+      if (!urlInput) return alert('請先貼上官網商品網址！');
+      
+      // 更加強大的商品代碼萃取（支援多語系路徑、參數過濾）
       const match = urlInput.match(/\/products\/([^?#/]+)/);
-      if (!match) return alert('網址格式不正確，需包含 /products/商品名稱');
-      const productHandle = match[1];
+      if (!match) {
+        return alert('網址格式無法辨識，請貼上包含 /products/... 的商品頁網址！');
+      }
+      const productHandle = decodeURIComponent(match[1]);
 
       addBtn.disabled = true;
       syncStatus.innerText = '⏳ 正在讀取官網圖片與原價...';
 
       try {
-        // 利用 AllOrigins 跨域抓取官網商品 JSON
-        const targetUrl = `https://chiikawamarket.jp/products/${productHandle}.json`;
+        const targetUrl = `https://chiikawamarket.jp/products/${productHandle}.js`;
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        
         const res = await fetch(proxyUrl);
         const proxyData = await res.json();
-        const product = JSON.parse(proxyData.contents).product;
+        
+        let product;
+        if (proxyData.contents) {
+          product = JSON.parse(proxyData.contents);
+        } else {
+          throw new Error('無法取得內容');
+        }
 
         const title = product.title;
-        const jpyPrice = parseFloat(product.variants[0].price);
-        const imageUrl = product.image ? product.image.src : (product.images[0]?.src || '');
+        // Shopify .js 介面的 price 單位為分（日圓乘100）或原價
+        const rawPrice = product.price > 100000 ? product.price / 100 : product.price;
+        const jpyPrice = parseFloat(rawPrice);
+        const imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
         const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
 
         const newItem = {
@@ -148,7 +156,7 @@
           jpyPrice: jpyPrice,
           twdOriginalPrice: twdOriginalPrice,
           buyPriceTwd: buyPrice ? parseFloat(buyPrice) : 0,
-          imageUrl: imageUrl,
+          imageUrl: imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl,
           url: urlInput
         };
 
@@ -167,14 +175,14 @@
         syncStatus.innerText = '✅ 同步成功！';
         setTimeout(() => syncStatus.innerText = '', 3000);
       } catch (err) {
-        alert('讀取失敗，請確認該商品連結是否有效。');
         console.error(err);
+        syncStatus.innerText = '';
+        alert('抓取失敗！請確認貼上的是否為單一商品頁面。如果依然無法讀取，請把商品網址發給我，我幫你檢查！');
       } finally {
         addBtn.disabled = false;
       }
     }
 
-    // 刪除收藏
     async function deleteItem(id) {
       if (!confirm('確定要從雲端刪除這筆收藏嗎？')) return;
       myCollection = myCollection.filter(item => item.id != id);
@@ -188,7 +196,6 @@
       });
     }
 
-    // 渲染卡片介面
     function renderItems() {
       const filter = document.getElementById('filterCategory').value;
       const container = document.getElementById('itemList');
