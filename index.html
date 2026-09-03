@@ -9,7 +9,6 @@
 <body class="bg-amber-50 min-h-screen text-slate-800 p-4 sm:p-8">
 
   <div class="max-w-5xl mx-auto">
-    <!-- 標題區 -->
     <header class="text-center mb-8">
       <h1 class="text-3xl font-bold text-pink-600 mb-2">✨ 吉伊卡哇吊飾收藏記錄本 ✨</h1>
       <p class="text-sm text-gray-500">雲端同步版：手機、平板隨時同步更新 ☁️</p>
@@ -25,10 +24,17 @@
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">你的購入金額 (NTD)</label>
-          <input id="buyPriceTwd" type="number" placeholder="例如: 380" 
+          <label class="block text-xs font-semibold text-gray-500 mb-1">日幣原價 (選填，自動含稅)</label>
+          <input id="customJpy" type="number" placeholder="留空自動抓取 / 如: 1650" 
                  class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
         </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">你的購入金額 (NTD)</label>
+          <input id="buyPriceTwd" type="number" placeholder="例如: 430" 
+                 class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-pink-400">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
         <div>
           <label class="block text-xs font-semibold text-gray-500 mb-1">角色歸類</label>
           <select id="charCategory" class="w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-pink-400">
@@ -43,12 +49,12 @@
             <option value="其他">其他 / 多人款</option>
           </select>
         </div>
-      </div>
-      <div class="mt-4 flex justify-between items-center">
-        <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
-        <button id="addBtn" onclick="addItem()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
-          解析並同步儲存
-        </button>
+        <div class="md:col-span-3 flex justify-between items-end">
+          <span id="syncStatus" class="text-xs text-pink-600 font-medium"></span>
+          <button id="addBtn" onclick="addItem()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+            解析並同步儲存
+          </button>
+        </div>
       </div>
     </div>
 
@@ -109,33 +115,26 @@
       }
     }
 
-    // 雙通道跨域抓取函式
     async function fetchProductData(handle) {
       const targetUrl = `https://chiikawamarket.jp/products/${handle}.js`;
-      
-      // 通道 1: corsproxy.io
       try {
         const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
         if (res.ok) return await res.json();
-      } catch (e) {
-        console.warn('通道 1 失敗，嘗試通道 2');
-      }
+      } catch (e) {}
 
-      // 通道 2: allorigins.win
       try {
         const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
         const data = await res.json();
         if (data?.contents) return JSON.parse(data.contents);
-      } catch (e) {
-        console.warn('通道 2 失敗');
-      }
+      } catch (e) {}
 
-      throw new Error('所有通道皆無法抓取');
+      throw new Error('抓取失敗');
     }
 
     async function addItem() {
       const urlInput = document.getElementById('productUrl').value.trim();
       const buyPrice = document.getElementById('buyPriceTwd').value.trim();
+      const customJpy = document.getElementById('customJpy').value.trim();
       const category = document.getElementById('charCategory').value;
       const addBtn = document.getElementById('addBtn');
       const syncStatus = document.getElementById('syncStatus');
@@ -158,21 +157,28 @@
         const product = await fetchProductData(productHandle);
         title = product.title;
         
-        let rawPrice = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
-        rawPrice = parseFloat(rawPrice);
-        if (rawPrice > 50000) rawPrice = rawPrice / 100;
-        jpyPrice = Math.round(rawPrice);
+        if (customJpy) {
+          // 如果使用者有自行手動填寫日幣原價，以手動輸入為準
+          jpyPrice = parseFloat(customJpy);
+        } else {
+          // 自動解析官網價格並加上日本 10% 消費稅
+          let rawPrice = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
+          rawPrice = parseFloat(rawPrice);
+          if (rawPrice > 50000) rawPrice = rawPrice / 100;
+          
+          // 若官網給的是未稅價 (如 1500)，乘以 1.1 轉為含稅價 1650
+          jpyPrice = Math.round(rawPrice * 1.1);
+        }
 
         imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
       } catch (err) {
-        console.warn('自動解析受阻，啟用手動輔助輸入');
-        title = prompt('官網連線較慢，請直接輸入「商品名稱」：', '吉伊卡哇吊飾');
+        title = prompt('請直接輸入「商品名稱」：', '吉伊卡哇吊飾');
         if (!title) {
           addBtn.disabled = false;
           syncStatus.innerText = '';
           return;
         }
-        const promptPrice = prompt('請輸入「日幣原價」（例如 1670）：', '1670');
+        const promptPrice = customJpy || prompt('請輸入「日幣含稅原價」（例如 1650）：', '1650');
         jpyPrice = parseFloat(promptPrice) || 0;
         imageUrl = 'https://chiikawamarket.jp/cdn/shop/files/chiikawa_logo.png';
       }
@@ -203,10 +209,11 @@
         renderItems();
         document.getElementById('productUrl').value = '';
         document.getElementById('buyPriceTwd').value = '';
+        document.getElementById('customJpy').value = '';
         syncStatus.innerText = '✅ 同步成功！';
         setTimeout(() => syncStatus.innerText = '', 3000);
       } catch (e) {
-        alert('存入雲端失敗，請檢查網路連線。');
+        alert('存入雲端失敗，請檢查網路。');
       } finally {
         addBtn.disabled = false;
       }
