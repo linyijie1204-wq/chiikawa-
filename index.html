@@ -118,7 +118,6 @@
 
       if (!urlInput) return alert('請先貼上官網商品網址！');
       
-      // 更加強大的商品代碼萃取（支援多語系路徑、參數過濾）
       const match = urlInput.match(/\/products\/([^?#/]+)/);
       if (!match) {
         return alert('網址格式無法辨識，請貼上包含 /products/... 的商品頁網址！');
@@ -143,9 +142,15 @@
         }
 
         const title = product.title;
-        // Shopify .js 介面的 price 單位為分（日圓乘100）或原價
-        const rawPrice = product.price > 100000 ? product.price / 100 : product.price;
-        const jpyPrice = parseFloat(rawPrice);
+        
+        // 正確解析官方原價（修復 1670 抓成 14 的問題）
+        let rawPrice = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
+        rawPrice = parseFloat(rawPrice);
+        if (rawPrice > 50000) {
+          rawPrice = rawPrice / 100;
+        }
+        const jpyPrice = Math.round(rawPrice);
+
         const imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
         const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
 
@@ -177,7 +182,7 @@
       } catch (err) {
         console.error(err);
         syncStatus.innerText = '';
-        alert('抓取失敗！請確認貼上的是否為單一商品頁面。如果依然無法讀取，請把商品網址發給我，我幫你檢查！');
+        alert('抓取失敗！請確認貼上的是否為單一商品頁面。');
       } finally {
         addBtn.disabled = false;
       }
