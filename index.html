@@ -1,9 +1,9 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的吉伊卡哇吊飾＆小物收藏庫 (雲端同步版)</title>
+  <title>吉伊卡哇吊飾＆小物收藏庫 (雲端同步版)</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-amber-50 min-h-screen text-slate-800 p-4 sm:p-8">
@@ -11,7 +11,7 @@
   <div class="max-w-5xl mx-auto">
     <header class="text-center mb-8">
       <h1 class="text-3xl font-bold text-pink-600 mb-2">✨ 吉伊卡哇吊飾收藏記錄本 ✨</h1>
-      <p class="text-sm text-gray-500">貼上網址自動抓取含稅原價 ☁️</p>
+      <p class="text-sm text-gray-500">Google 雲端直連穩定版 ☁️</p>
     </header>
 
     <!-- 輸入控制板 -->
@@ -76,7 +76,6 @@
       </div>
     </div>
 
-    <!-- 卡片展示列表 -->
     <div id="itemList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
   </div>
 
@@ -108,20 +107,21 @@
       }
     }
 
-    async function fetchProductData(handle) {
-      const targetUrl = `https://chiikawamarket.jp/products/${handle}.js`;
+    // 透過 Google Apps Script 伺服器代抓，避開代理阻擋
+    async function fetchProductDirectly(handle) {
+      // 優先管道：corsproxy.io
       try {
-        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://chiikawamarket.jp/products/' + handle + '.js')}`);
         if (res.ok) return await res.json();
       } catch (e) {}
 
-      try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-        const data = await res.json();
-        if (data?.contents) return JSON.parse(data.contents);
-      } catch (e) {}
-
-      throw new Error('抓取失敗');
+      // 備援管道：直接請 Google 後端抓取
+      const gasRes = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'scrape', handle: handle })
+      });
+      return await gasRes.json();
     }
 
     async function addItem() {
@@ -139,20 +139,18 @@
       const productHandle = decodeURIComponent(match[1]);
 
       addBtn.disabled = true;
-      syncStatus.innerText = '⏳ 正在自動解析官網資料...';
+      syncStatus.innerText = '⏳ 正在讀取官網含稅原價...';
 
       try {
-        const product = await fetchProductData(productHandle);
+        const product = await fetchProductDirectly(productHandle);
+        if (!product || (!product.title && !product.price)) throw new Error('解析失敗');
+
         const title = product.title;
         const imageUrl = product.featured_image ? product.featured_image : (product.images?.[0] || '');
 
-        // 精準取價：Shopify .js 的原始標價本身就是日幣含稅價 * 100
         let p = (product.variants && product.variants.length > 0) ? product.variants[0].price : product.price;
         p = parseFloat(p);
-        
         let jpyPrice = p > 10000 ? Math.round(p / 100) : Math.round(p);
-
-        // 防呆校正：若抓到的是舊版未稅 1500，自動修正為含稅 1650
         if (jpyPrice === 1500) jpyPrice = 1650;
 
         const twdOriginalPrice = Math.round(jpyPrice * JPY_TO_TWD);
@@ -184,7 +182,7 @@
         setTimeout(() => syncStatus.innerText = '', 3000);
       } catch (err) {
         console.error(err);
-        alert('抓取失敗！請確認該商品網址是否有效。');
+        alert('抓取失敗！如果官網防護較嚴格，請將該商品的網址貼給我，我幫你直接確認格式。');
       } finally {
         addBtn.disabled = false;
         syncStatus.innerText = '';
