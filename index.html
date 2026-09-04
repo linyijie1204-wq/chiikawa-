@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>吉伊卡哇 收藏圖鑑＆追蹤帳本</title>
+  <title>我的吉伊卡哇收藏圖鑑＆追蹤帳本</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -27,9 +27,9 @@
         <span class="text-xs font-bold tracking-wider text-pink-600">CHIIKAWA COLLECTION TRACKER</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-        ✨ 吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
+        ✨ 我的吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
       </h1>
-      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上網址自動抓取官方圖片 ☁️ 雲端同步</p>
+      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上網址秒抓官方高清美圖 ☁️ 雲端同步</p>
     </header>
 
     <div class="flex justify-center mb-6">
@@ -52,16 +52,20 @@
           <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增實體圖鑑項目
         </h2>
 
+        <!-- 貼網址 -->
         <div class="mb-4">
-          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上後移開游標或輸入價格，即自動抓圖與品名）</label>
-          <input id="colUrl" type="url" onchange="handleUrlAutoFetch()" onpaste="setTimeout(handleUrlAutoFetch, 200)" placeholder="https://chiikawamarket.jp/.../products/..." 
+          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上後會立刻自動抓取圖片與品名）</label>
+          <input id="colUrl" type="url" 
+                 oninput="handleUrlAutoFetch()" 
+                 onpaste="setTimeout(handleUrlAutoFetch, 100)" 
+                 placeholder="https://chiikawamarket.jp/.../products/..." 
                  class="w-full border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動填入)</label>
-            <input id="colTitle" type="text" placeholder="貼上網址後自動帶入..." 
+            <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動帶入)</label>
+            <input id="colTitle" type="text" placeholder="貼上網址自動填入..." 
                    class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-pink-50/20 focus:outline-none focus:ring-2 focus:ring-pink-400">
           </div>
           <div>
@@ -76,7 +80,8 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 items-end">
+        <!-- 圖片預覽區與確認按鈕 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 items-center">
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類 (自動判定)</label>
             <select id="colCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400">
@@ -91,11 +96,21 @@
               <option value="其他">其他 / 多人款</option>
             </select>
           </div>
-          <div class="hidden sm:block">
+          
+          <!-- 官方圖片即時預覽小框 -->
+          <div class="flex items-center gap-3 bg-pink-50/50 p-2 rounded-2xl border border-pink-100">
+            <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center overflow-hidden border border-pink-200 shrink-0">
+              <img id="previewImg" src="https://api.iconify.design/fluent-emoji-flat:camera.svg" class="w-full h-full object-contain p-1">
+            </div>
+            <div class="text-[11px] text-gray-500 leading-tight">
+              <span id="previewText" class="font-bold text-pink-600">等待網址...</span><br>
+              官方照片將於此即時預覽
+            </div>
             <input id="colImage" type="hidden">
           </div>
-          <div class="sm:col-start-3">
-            <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-2.5 px-4 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
+
+          <div>
+            <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-3 px-4 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
               💖 儲存至收藏圖鑑
             </button>
           </div>
@@ -201,7 +216,7 @@
     let JPY_TO_TWD = 0.215;
     let allItems = [];
     let currentFilter = "全部";
-    let lastFetchedUrl = "";
+    let lastFetchedHandle = "";
 
     function switchTab(tab) {
       if (tab === 'collection') {
@@ -231,21 +246,32 @@
       } catch (e) {}
     }
 
-    // Google 伺服器代抓官網資料
+    // 格式化官方圖片網址（補全 https:// 並去除壓縮阻礙）
+    function formatShopifyImageUrl(raw) {
+      if (!raw) return '';
+      if (typeof raw === 'object') raw = raw.src || '';
+      if (raw.startsWith('//')) raw = 'https:' + raw;
+      return raw;
+    }
+
+    // 核心：超靈敏抓取品名與官方圖片
     async function handleUrlAutoFetch() {
       const url = document.getElementById('colUrl').value.trim();
-      if (!url || url === lastFetchedUrl) return;
+      if (!url) return;
 
       const match = url.match(/\/products\/([^?#/]+)/);
       if (!match) return;
 
       const handle = decodeURIComponent(match[1]);
-      lastFetchedUrl = url;
-      document.getElementById('syncStatus').innerText = '⏳ 正在讀取官方圖片與品名...';
+      if (handle === lastFetchedHandle) return;
+      lastFetchedHandle = handle;
+
+      document.getElementById('syncStatus').innerText = '⏳ 正在為你抓取官方照片與品名...';
+      document.getElementById('previewText').innerText = '照片讀取中...';
 
       let product = null;
 
-      // 優先管道：Google Apps Script
+      // 1. Google 伺服器
       try {
         const gasRes = await fetch(GAS_API_URL, {
           method: 'POST',
@@ -255,7 +281,7 @@
         product = await gasRes.json();
       } catch (e) {}
 
-      // 備用管道：corsproxy.io
+      // 2. 備援直接代理
       if (!product || !product.title) {
         try {
           const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://chiikawamarket.jp/products/' + handle + '.js')}`);
@@ -266,12 +292,15 @@
       if (product && product.title) {
         document.getElementById('colTitle').value = product.title;
 
-        // 擷取官方高畫質圖片
-        let rawImg = product.featured_image || (product.images && product.images[0] ? product.images[0] : '');
-        if (typeof rawImg === 'object' && rawImg.src) rawImg = rawImg.src;
-        if (rawImg.startsWith('//')) rawImg = 'https:' + rawImg;
+        // 精準抓取高解析原圖
+        let imgUrl = product.featured_image || (product.images && product.images.length > 0 ? product.images[0] : '');
+        imgUrl = formatShopifyImageUrl(imgUrl);
 
-        document.getElementById('colImage').value = rawImg;
+        if (imgUrl) {
+          document.getElementById('colImage').value = imgUrl;
+          document.getElementById('previewImg').src = imgUrl;
+          document.getElementById('previewText').innerText = '✅ 官方照片已就緒！';
+        }
 
         // 智慧選擇角色
         const title = product.title;
@@ -284,10 +313,8 @@
         else if (title.includes('カニ') || title.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
         else if (title.includes('ちいかわ') || title.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
 
-        document.getElementById('syncStatus').innerText = '✨ 官方圖片與品名已帶入！';
+        document.getElementById('syncStatus').innerText = '✨ 官方美照與品名載入完成！請填入日幣價格';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
-      } else {
-        document.getElementById('syncStatus').innerText = '';
       }
     }
 
@@ -339,7 +366,8 @@
 
       if (!jpy) return alert('請填寫日幣含稅原價（例如 1650）！');
 
-      if ((!title || !img) && url) {
+      // 檢查圖片若還沒跑出來，自動補抓
+      if (!img && url) {
         await handleUrlAutoFetch();
         title = document.getElementById('colTitle').value.trim();
         img = document.getElementById('colImage').value.trim();
@@ -378,12 +406,16 @@
         allItems.unshift(newItem);
         renderCollection();
 
+        // 清空輸入並重設預覽
         document.getElementById('colUrl').value = '';
         document.getElementById('colTitle').value = '';
         document.getElementById('colJpy').value = '';
         document.getElementById('colBuyTwd').value = '';
         document.getElementById('colImage').value = '';
-        lastFetchedUrl = "";
+        document.getElementById('previewImg').src = 'https://api.iconify.design/fluent-emoji-flat:camera.svg';
+        document.getElementById('previewText').innerText = '等待網址...';
+        lastFetchedHandle = "";
+
         document.getElementById('syncStatus').innerText = '✅ 收藏成功加入圖鑑！';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
       } catch (err) {
@@ -483,8 +515,10 @@
         const card = document.createElement('div');
         card.className = "bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col border border-pink-100/80 group";
         card.innerHTML = `
-          <div class="relative pt-[100%] bg-gradient-to-b from-pink-50/50 to-white">
-            <img src="${item.imageUrl}" class="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition duration-300">
+          <div class="relative pt-[100%] bg-gradient-to-b from-pink-50/50 to-white overflow-hidden">
+            <img src="${item.imageUrl}" 
+                 onerror="this.onerror=null;this.src='${avatar}';" 
+                 class="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition duration-300">
             <span class="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur text-pink-700 text-[11px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-sm border border-pink-100">
               <img src="${avatar}" class="w-3.5 h-3.5 object-contain">
               ${item.category}
@@ -559,7 +593,7 @@
               <div class="text-gray-500 font-medium">總額: NT$ ${total} ｜ <span class="text-pink-600 font-bold">已付訂金: NT$ ${deposit}</span></div>
               <div class="text-sm font-extrabold text-rose-500 mt-0.5">剩餘尾款: NT$ ${remaining}</div>
             </div>
-            <button onclick="deleteItem('${item.id}')" class="text-xs text-gray-300 hover:text-rose-500 pl-2 transition">刪除</button>
+            <button onclick="deleteItem('${item.id}')" class="text-gray-300 hover:text-rose-500 pl-2 transition">刪除</button>
           </div>
         `;
         container.appendChild(card);
