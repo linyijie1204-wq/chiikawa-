@@ -6,12 +6,10 @@
   <title>吉伊卡哇 收藏圖鑑＆追蹤帳本</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
-    }
+    body { font-family: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; }
     .tab-active {
       background-color: #fff;
       color: #ec4899;
@@ -31,10 +29,9 @@
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
         ✨ 吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
       </h1>
-      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上網址自動填入品名 ☁️ 雲端同步試算表</p>
+      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上網址自動抓取官方圖片 ☁️ 雲端同步</p>
     </header>
 
-    <!-- 分頁切換 -->
     <div class="flex justify-center mb-6">
       <div class="bg-pink-100/60 p-1.5 rounded-2xl flex gap-2 border border-pink-200/50 shadow-inner">
         <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200">
@@ -46,7 +43,6 @@
       </div>
     </div>
 
-    <!-- 狀態提示 -->
     <div id="syncStatus" class="text-center text-xs font-bold text-pink-600 mb-4 h-4"></div>
 
     <!-- 1. 收藏圖鑑 -->
@@ -56,14 +52,12 @@
           <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增實體圖鑑項目
         </h2>
 
-        <!-- 第一排：貼網址 (自動觸發抓取) -->
         <div class="mb-4">
-          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上後會自動抓品名與照片）</label>
-          <input id="colUrl" type="url" oninput="handleUrlAutoFetch()" onpaste="setTimeout(handleUrlAutoFetch, 100)" placeholder="https://chiikawamarket.jp/.../products/..." 
+          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上後移開游標或輸入價格，即自動抓圖與品名）</label>
+          <input id="colUrl" type="url" onchange="handleUrlAutoFetch()" onpaste="setTimeout(handleUrlAutoFetch, 200)" placeholder="https://chiikawamarket.jp/.../products/..." 
                  class="w-full border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
         </div>
 
-        <!-- 第二排：商品名稱 (自動帶出)、日幣自填、台幣購入 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動填入)</label>
@@ -82,7 +76,6 @@
           </div>
         </div>
 
-        <!-- 第三排：角色歸類、隱藏圖片網址、儲存按鈕 -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 items-end">
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類 (自動判定)</label>
@@ -109,10 +102,8 @@
         </div>
       </div>
 
-      <!-- 角色過濾按鈕 -->
       <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons"></div>
 
-      <!-- 數據統計 -->
       <div class="flex flex-wrap justify-between items-center bg-gradient-to-r from-pink-500 to-rose-400 px-5 py-3 rounded-2xl text-white font-bold shadow-md shadow-pink-200 mb-6">
         <div class="text-sm flex items-center gap-2">
           <span>🎒</span> <span id="colStatsCount">圖鑑數量：0 件</span>
@@ -240,7 +231,7 @@
       } catch (e) {}
     }
 
-    // 核心：貼上網址自動解析品名與圖片
+    // Google 伺服器代抓官網資料
     async function handleUrlAutoFetch() {
       const url = document.getElementById('colUrl').value.trim();
       if (!url || url === lastFetchedUrl) return;
@@ -250,44 +241,52 @@
 
       const handle = decodeURIComponent(match[1]);
       lastFetchedUrl = url;
-      document.getElementById('syncStatus').innerText = '⏳ 正在自動抓取品名與照片...';
+      document.getElementById('syncStatus').innerText = '⏳ 正在讀取官方圖片與品名...';
 
+      let product = null;
+
+      // 優先管道：Google Apps Script
       try {
-        const target = `https://chiikawamarket.jp/products/${handle}.js`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(target)}`;
-        let product = null;
+        const gasRes = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'scrape', handle: handle })
+        });
+        product = await gasRes.json();
+      } catch (e) {}
 
+      // 備用管道：corsproxy.io
+      if (!product || !product.title) {
         try {
-          const res = await fetch(proxyUrl);
+          const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://chiikawamarket.jp/products/' + handle + '.js')}`);
           if (res.ok) product = await res.json();
         } catch (e) {}
+      }
 
-        if (!product) {
-          const res2 = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
-          const data2 = await res2.json();
-          if (data2.contents) product = JSON.parse(data2.contents);
-        }
+      if (product && product.title) {
+        document.getElementById('colTitle').value = product.title;
 
-        if (product && product.title) {
-          document.getElementById('colTitle').value = product.title;
-          const img = product.featured_image || product.images?.[0] || '';
-          document.getElementById('colImage').value = img.startsWith('//') ? 'https:' + img : img;
+        // 擷取官方高畫質圖片
+        let rawImg = product.featured_image || (product.images && product.images[0] ? product.images[0] : '');
+        if (typeof rawImg === 'object' && rawImg.src) rawImg = rawImg.src;
+        if (rawImg.startsWith('//')) rawImg = 'https:' + rawImg;
 
-          // 智慧選擇角色
-          const title = product.title;
-          if (title.includes('ハチワレ') || title.includes('小八')) document.getElementById('colCategory').value = '小八貓';
-          else if (title.includes('うさぎ') || title.includes('兔兔')) document.getElementById('colCategory').value = '兔兔';
-          else if (title.includes('モモンガ') || title.includes('小桃')) document.getElementById('colCategory').value = '小桃鼠';
-          else if (title.includes('くりまんじゅう') || title.includes('栗子')) document.getElementById('colCategory').value = '栗子饅頭';
-          else if (title.includes('ラッコ') || title.includes('海獺')) document.getElementById('colCategory').value = '海獺';
-          else if (title.includes('シーサー') || title.includes('獅薩')) document.getElementById('colCategory').value = '獅薩';
-          else if (title.includes('カニ') || title.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
-          else if (title.includes('ちいかわ') || title.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
+        document.getElementById('colImage').value = rawImg;
 
-          document.getElementById('syncStatus').innerText = '✨ 品名與圖片已自動帶入！';
-          setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
-        }
-      } catch (err) {
+        // 智慧選擇角色
+        const title = product.title;
+        if (title.includes('ハチワレ') || title.includes('小八')) document.getElementById('colCategory').value = '小八貓';
+        else if (title.includes('うさぎ') || title.includes('兔兔')) document.getElementById('colCategory').value = '兔兔';
+        else if (title.includes('モモンガ') || title.includes('小桃')) document.getElementById('colCategory').value = '小桃鼠';
+        else if (title.includes('くりまんじゅう') || title.includes('栗子')) document.getElementById('colCategory').value = '栗子饅頭';
+        else if (title.includes('ラッコ') || title.includes('海獺')) document.getElementById('colCategory').value = '海獺';
+        else if (title.includes('シーサー') || title.includes('獅薩')) document.getElementById('colCategory').value = '獅薩';
+        else if (title.includes('カニ') || title.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
+        else if (title.includes('ちいかわ') || title.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
+
+        document.getElementById('syncStatus').innerText = '✨ 官方圖片與品名已帶入！';
+        setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
+      } else {
         document.getElementById('syncStatus').innerText = '';
       }
     }
@@ -338,10 +337,9 @@
       let img = document.getElementById('colImage').value.trim();
       const url = document.getElementById('colUrl').value.trim();
 
-      if (!jpy) return alert('請填寫日幣原價（例如 1650）！');
+      if (!jpy) return alert('請填寫日幣含稅原價（例如 1650）！');
 
-      // 若使用者直接按儲存而品名尚未抓好，自動補抓一次
-      if (!title && url) {
+      if ((!title || !img) && url) {
         await handleUrlAutoFetch();
         title = document.getElementById('colTitle').value.trim();
         img = document.getElementById('colImage').value.trim();
