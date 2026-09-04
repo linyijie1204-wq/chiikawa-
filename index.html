@@ -3,181 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的吉伊卡哇收藏圖鑑＆追蹤帳本</title>
+  <title>吉伊卡哇 收藏圖鑑＆預購追蹤本</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; }
     .tab-active {
-      background-color: #fff;
-      color: #ec4899;
-      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
-      border-bottom: 2px solid #ec4899;
+      background-color: #ffffff;
+      color: #db2777;
+      box-shadow: 0 4px 14px rgba(219, 39, 119, 0.15);
+      border-bottom: 2px solid #db2777;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-pink-50 via-amber-50 to-orange-50 min-h-screen text-slate-700 p-3 sm:p-8">
+<body class="bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 min-h-screen text-slate-700 p-3 sm:p-8">
 
   <div class="max-w-5xl mx-auto">
-    <header class="text-center mb-8">
-      <div class="inline-flex items-center gap-2 bg-white/80 border border-pink-200 px-4 py-1.5 rounded-full shadow-sm mb-3">
+    <!-- 頂部標題 -->
+    <header class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 bg-white/80 border border-pink-200 px-3.5 py-1 rounded-full shadow-sm mb-2">
         <span>🌸</span>
-        <span class="text-xs font-bold tracking-wider text-pink-600">CHIIKAWA COLLECTION TRACKER</span>
+        <span class="text-xs font-bold tracking-wider text-pink-600">CHIIKAWA COLLECTION</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-        ✨ 我的吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800">
+        ✨ 吉伊卡哇收藏圖鑑 ＆ 追蹤帳本 ✨
       </h1>
-      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上網址秒抓官方高清美圖 ☁️ 雲端同步</p>
+      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-medium">貼上商品網址自動帶出官方圖 × 日幣自填最精準 ☁️</p>
     </header>
 
+    <!-- 分頁切換 -->
     <div class="flex justify-center mb-6">
-      <div class="bg-pink-100/60 p-1.5 rounded-2xl flex gap-2 border border-pink-200/50 shadow-inner">
-        <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200">
+      <div class="bg-pink-100/70 p-1.5 rounded-2xl flex gap-2 border border-pink-200 shadow-inner">
+        <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition">
           <span>🏆</span> 收藏圖鑑
         </button>
-        <button onclick="switchTab('orders')" id="tabBtnOrders" class="py-2 px-6 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition duration-200">
+        <button onclick="switchTab('orders')" id="tabBtnOrders" class="py-2 px-5 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition">
           <span>📦</span> 購買／預購紀錄 (<span id="unpaidBadge" class="text-red-500">0</span>)
         </button>
       </div>
     </div>
 
+    <!-- 狀態提醒列 -->
     <div id="syncStatus" class="text-center text-xs font-bold text-pink-600 mb-4 h-4"></div>
 
-    <!-- 1. 收藏圖鑑 -->
+    <!-- 1. 收藏圖鑑 分頁 -->
     <div id="viewCollection">
-      <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-lg shadow-pink-100/60 mb-8 border border-pink-100">
+      <div class="bg-white/95 backdrop-blur-sm p-5 sm:p-6 rounded-3xl shadow-lg shadow-pink-100/70 mb-8 border border-pink-100">
         <h2 class="text-sm font-extrabold mb-4 text-pink-600 flex items-center gap-2">
-          <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增實體圖鑑項目
+          <span class="bg-pink-100 p-1 rounded-lg text-pink-500">＋</span> 新增收藏項目
         </h2>
 
-        <!-- 貼網址 -->
+        <!-- 貼網址處 -->
         <div class="mb-4">
-          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（貼上後會立刻自動抓取圖片與品名）</label>
-          <input id="colUrl" type="url" 
-                 oninput="handleUrlAutoFetch()" 
-                 onpaste="setTimeout(handleUrlAutoFetch, 100)" 
-                 placeholder="https://chiikawamarket.jp/.../products/..." 
-                 class="w-full border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動帶入)</label>
-            <input id="colTitle" type="text" placeholder="貼上網址自動填入..." 
-                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-pink-50/20 focus:outline-none focus:ring-2 focus:ring-pink-400">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-pink-600 mb-1">💴 日幣含稅原價 (自己寫)</label>
-            <input id="colJpy" type="number" placeholder="例如: 1650" 
-                   class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 bg-pink-50/40">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">💰 購入金額 (NTD)</label>
-            <input id="colBuyTwd" type="number" placeholder="例如: 430" 
-                   class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70">
-          </div>
-        </div>
-
-        <!-- 圖片預覽區與確認按鈕 -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 items-center">
-          <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類 (自動判定)</label>
-            <select id="colCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400">
-              <option value="吉伊卡哇">吉伊卡哇 (ちいかわ)</option>
-              <option value="小八貓">小八貓 (ハチワレ)</option>
-              <option value="兔兔">兔兔 (うさぎ)</option>
-              <option value="小桃鼠">小桃鼠 (モモンガ)</option>
-              <option value="栗子饅頭">栗子饅頭 (くりまんじゅう)</option>
-              <option value="海獺">海獺勇者 (ラッコ)</option>
-              <option value="獅薩">獅薩 (シーサー)</option>
-              <option value="古本屋">古本屋 (カニちゃん)</option>
-              <option value="其他">其他 / 多人款</option>
-            </select>
-          </div>
-          
-          <!-- 官方圖片即時預覽小框 -->
-          <div class="flex items-center gap-3 bg-pink-50/50 p-2 rounded-2xl border border-pink-100">
-            <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center overflow-hidden border border-pink-200 shrink-0">
-              <img id="previewImg" src="https://api.iconify.design/fluent-emoji-flat:camera.svg" class="w-full h-full object-contain p-1">
-            </div>
-            <div class="text-[11px] text-gray-500 leading-tight">
-              <span id="previewText" class="font-bold text-pink-600">等待網址...</span><br>
-              官方照片將於此即時預覽
-            </div>
-            <input id="colImage" type="hidden">
-          </div>
-
-          <div>
-            <button onclick="addCollectionItem()" id="btnColAdd" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-3 px-4 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
-              💖 儲存至收藏圖鑑
+          <label class="block text-xs font-bold text-gray-500 mb-1">🔗 官網商品網址（支援繁中與日文網址，貼上自動抓圖與名稱）</label>
+          <div class="flex gap-2">
+            <input id="colUrl" type="url" 
+                   onchange="fetchProductInfo()" 
+                   placeholder="https://chiikawamarket.jp/.../products/..." 
+                   class="flex-1 border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+            <button onclick="fetchProductInfo()" id="btnFetch" class="bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shrink-0">
+              讀取官網資訊
             </button>
           </div>
         </div>
+
+        <!-- 圖片即時預覽與各欄位 -->
+        <div class="flex flex-col sm:flex-row gap-4 items-center mb-4">
+          <!-- 官方圖即時預覽格 -->
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-pink-50/60 border border-pink-200 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+            <img id="previewImg" src="https://api.iconify.design/fluent-emoji-flat:camera.svg" class="w-full h-full object-contain p-2">
+          </div>
+
+          <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-3">
+              <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動帶入)</label>
+              <input id="colTitle" type="text" placeholder="貼上網址後自動顯示，可自訂修改" 
+                     class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm bg-pink-50/20 focus:outline-none focus:ring-2 focus:ring-pink-400">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-pink-600 mb-1">💴 日幣含稅原價 (自己填)</label>
+              <input id="colJpy" type="number" placeholder="例如: 1650" 
+                     class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2 text-sm font-bold text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 bg-pink-50/30">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">💰 購入金額 (NTD)</label>
+              <input id="colBuyTwd" type="number" placeholder="例如: 430" 
+                     class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類</label>
+              <select id="colCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+                <option value="吉伊卡哇">吉伊卡哇</option>
+                <option value="小八貓">小八貓</option>
+                <option value="兔兔">兔兔</option>
+                <option value="小桃鼠">小桃鼠</option>
+                <option value="栗子饅頭">栗子饅頭</option>
+                <option value="海獺">海獺勇者</option>
+                <option value="獅薩">獅薩</option>
+                <option value="古本屋">古本屋</option>
+                <option value="其他">其他 / 多人款</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <input id="colImage" type="hidden">
+
+        <div class="flex justify-end">
+          <button onclick="addCollectionItem()" id="btnColAdd" class="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-2.5 px-8 rounded-xl text-sm transition shadow-md shadow-pink-300/50">
+            💖 儲存至收藏圖鑑
+          </button>
+        </div>
       </div>
 
+      <!-- 角色篩選列 -->
       <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons"></div>
 
+      <!-- 統計資訊 -->
       <div class="flex flex-wrap justify-between items-center bg-gradient-to-r from-pink-500 to-rose-400 px-5 py-3 rounded-2xl text-white font-bold shadow-md shadow-pink-200 mb-6">
-        <div class="text-sm flex items-center gap-2">
-          <span>🎒</span> <span id="colStatsCount">圖鑑數量：0 件</span>
-        </div>
-        <div class="text-sm flex items-center gap-2">
-          <span>💵</span> <span id="colStatsTotal">收藏總投入：NT$ 0</span>
-        </div>
+        <div class="text-sm">🎒 <span id="colStatsCount">圖鑑數量：0 件</span></div>
+        <div class="text-sm">💵 <span id="colStatsTotal">收藏總投入：NT$ 0</span></div>
       </div>
 
-      <div id="collectionGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5"></div>
+      <div id="collectionGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5"></div>
     </div>
 
-    <!-- 2. 預購追蹤 -->
+    <!-- 2. 購買／預購紀錄 分頁 -->
     <div id="viewOrders" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-lg shadow-pink-100/60 mb-8 border border-pink-100">
+      <div class="bg-white/95 backdrop-blur-sm p-5 sm:p-6 rounded-3xl shadow-lg shadow-pink-100/70 mb-8 border border-pink-100">
         <h2 class="text-sm font-extrabold mb-4 text-pink-600 flex items-center gap-2">
-          <span class="bg-pink-100 p-1.5 rounded-lg text-pink-500">＋</span> 新增預購／訂金追蹤
+          <span class="bg-pink-100 p-1 rounded-lg text-pink-500">＋</span> 新增預購／訂金追蹤
         </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold text-gray-500 mb-1">預購商品名稱</label>
-            <input id="ordTitle" type="text" placeholder="例如：一番賞 A賞吉伊" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
+            <input id="ordTitle" type="text" placeholder="例如：一番賞 A賞吉伊" class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm focus:outline-pink-400">
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">角色歸類</label>
-            <select id="ordCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-pink-400">
+            <select id="ordCategory" class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm bg-white focus:outline-pink-400">
               <option value="吉伊卡哇">吉伊卡哇</option>
               <option value="小八貓">小八貓</option>
               <option value="兔兔">兔兔</option>
               <option value="小桃鼠">小桃鼠</option>
               <option value="栗子饅頭">栗子饅頭</option>
-              <option value="海獺">海獺</option>
+              <option value="海獺">海獺勇者</option>
               <option value="獅薩">獅薩</option>
               <option value="古本屋">古本屋</option>
               <option value="其他">其他 / 多人款</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">代購/賣家備註</label>
-            <input id="ordSeller" type="text" placeholder="例如：FB社團、蝦皮" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
+            <label class="block text-xs font-bold text-gray-500 mb-1">代購 / 賣家備註</label>
+            <input id="ordSeller" type="text" placeholder="例如：FB社團、蝦皮" class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm focus:outline-pink-400">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">預購總額 (NTD)</label>
-            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 500" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-pink-400">
+            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 500" class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm focus:outline-pink-400">
           </div>
           <div>
             <label class="block text-xs font-bold text-pink-600 mb-1">已付訂金 (NTD)</label>
-            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-pink-700 focus:outline-pink-500 bg-pink-50/40">
+            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" class="w-full border-2 border-pink-300 rounded-xl px-3.5 py-2 text-sm font-bold text-pink-700 focus:outline-pink-500 bg-pink-50/30">
           </div>
           <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">剩餘尾款 (自動計算)</label>
-            <input id="ordRemainingTwd" type="number" placeholder="尾款" disabled class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-red-500">
+            <label class="block text-xs font-bold text-gray-500 mb-1">剩餘尾款 (自動算)</label>
+            <input id="ordRemainingTwd" type="number" placeholder="尾款" disabled class="w-full bg-gray-100 border border-gray-200 rounded-xl px-3.5 py-2 text-sm font-bold text-red-500">
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">訂單狀態</label>
-            <select id="ordStatus" class="w-full border border-pink-200 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-pink-400">
+            <select id="ordStatus" class="w-full border border-pink-200 rounded-xl px-3.5 py-2 text-sm bg-white focus:outline-pink-400">
               <option value="已付訂金">🟡 已付訂金 (待出貨)</option>
               <option value="尚未付款">🔴 尚未付款</option>
               <option value="已全額結清">🟢 已全額結清</option>
@@ -216,19 +215,18 @@
     let JPY_TO_TWD = 0.215;
     let allItems = [];
     let currentFilter = "全部";
-    let lastFetchedHandle = "";
 
     function switchTab(tab) {
       if (tab === 'collection') {
         document.getElementById('viewCollection').classList.remove('hidden');
         document.getElementById('viewOrders').classList.add('hidden');
-        document.getElementById('tabBtnCollection').className = "tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200";
-        document.getElementById('tabBtnOrders').className = "py-2 px-6 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnCollection').className = "tab-active py-2 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition";
+        document.getElementById('tabBtnOrders').className = "py-2 px-5 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition";
       } else {
         document.getElementById('viewCollection').classList.add('hidden');
         document.getElementById('viewOrders').classList.remove('hidden');
-        document.getElementById('tabBtnOrders').className = "tab-active py-2 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition duration-200";
-        document.getElementById('tabBtnCollection').className = "py-2 px-6 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnOrders').className = "tab-active py-2 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition";
+        document.getElementById('tabBtnCollection').className = "py-2 px-5 rounded-xl text-sm font-bold text-gray-500 hover:text-pink-600 flex items-center gap-2 transition";
       }
     }
 
@@ -246,76 +244,74 @@
       } catch (e) {}
     }
 
-    // 格式化官方圖片網址（補全 https:// 並去除壓縮阻礙）
-    function formatShopifyImageUrl(raw) {
-      if (!raw) return '';
-      if (typeof raw === 'object') raw = raw.src || '';
-      if (raw.startsWith('//')) raw = 'https:' + raw;
-      return raw;
-    }
-
-    // 核心：超靈敏抓取品名與官方圖片
-    async function handleUrlAutoFetch() {
+    // 核心：解析官網資料 (自動清洗繁中網址，回歸日文原生 API)
+    async function fetchProductInfo() {
       const url = document.getElementById('colUrl').value.trim();
       if (!url) return;
 
       const match = url.match(/\/products\/([^?#/]+)/);
-      if (!match) return;
+      if (!match) {
+        alert('請確認貼上的是包含 /products/... 的商品頁網址！');
+        return;
+      }
 
       const handle = decodeURIComponent(match[1]);
-      if (handle === lastFetchedHandle) return;
-      lastFetchedHandle = handle;
+      const btn = document.getElementById('btnFetch');
+      btn.innerText = '讀取中...';
+      btn.disabled = true;
+      document.getElementById('syncStatus').innerText = '⏳ 正在連線官網抓取官方美圖...';
 
-      document.getElementById('syncStatus').innerText = '⏳ 正在為你抓取官方照片與品名...';
-      document.getElementById('previewText').innerText = '照片讀取中...';
-
+      const targetUrl = `https://chiikawamarket.jp/products/${handle}.js`;
       let product = null;
 
-      // 1. Google 伺服器
+      // 管道 1：AllOrigins (最相容 Shopify .js)
       try {
-        const gasRes = await fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'scrape', handle: handle })
-        });
-        product = await gasRes.json();
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        const data = await res.json();
+        if (data.contents) product = JSON.parse(data.contents);
       } catch (e) {}
 
-      // 2. 備援直接代理
+      // 管道 2：Corsproxy
       if (!product || !product.title) {
         try {
-          const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://chiikawamarket.jp/products/' + handle + '.js')}`);
-          if (res.ok) product = await res.json();
+          const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+          if (res2.ok) product = await res2.json();
         } catch (e) {}
       }
 
       if (product && product.title) {
         document.getElementById('colTitle').value = product.title;
 
-        // 精準抓取高解析原圖
-        let imgUrl = product.featured_image || (product.images && product.images.length > 0 ? product.images[0] : '');
-        imgUrl = formatShopifyImageUrl(imgUrl);
+        // 取得官方高清圖片並補齊網址協定
+        let img = product.featured_image || (product.images && product.images[0] ? product.images[0] : '');
+        if (typeof img === 'object') img = img.src || '';
+        if (img.startsWith('//')) img = 'https:' + img;
 
-        if (imgUrl) {
-          document.getElementById('colImage').value = imgUrl;
-          document.getElementById('previewImg').src = imgUrl;
-          document.getElementById('previewText').innerText = '✅ 官方照片已就緒！';
+        if (img) {
+          document.getElementById('colImage').value = img;
+          document.getElementById('previewImg').src = img;
         }
 
-        // 智慧選擇角色
-        const title = product.title;
-        if (title.includes('ハチワレ') || title.includes('小八')) document.getElementById('colCategory').value = '小八貓';
-        else if (title.includes('うさぎ') || title.includes('兔兔')) document.getElementById('colCategory').value = '兔兔';
-        else if (title.includes('モモンガ') || title.includes('小桃')) document.getElementById('colCategory').value = '小桃鼠';
-        else if (title.includes('くりまんじゅう') || title.includes('栗子')) document.getElementById('colCategory').value = '栗子饅頭';
-        else if (title.includes('ラッコ') || title.includes('海獺')) document.getElementById('colCategory').value = '海獺';
-        else if (title.includes('シーサー') || title.includes('獅薩')) document.getElementById('colCategory').value = '獅薩';
-        else if (title.includes('カニ') || title.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
-        else if (title.includes('ちいかわ') || title.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
+        // 智慧判定角色
+        const t = product.title;
+        if (t.includes('ハチワレ') || t.includes('小八')) document.getElementById('colCategory').value = '小八貓';
+        else if (t.includes('うさぎ') || t.includes('兔兔')) document.getElementById('colCategory').value = '兔兔';
+        else if (t.includes('モモンガ') || t.includes('小桃')) document.getElementById('colCategory').value = '小桃鼠';
+        else if (t.includes('くりまんじゅう') || t.includes('栗子')) document.getElementById('colCategory').value = '栗子饅頭';
+        else if (t.includes('ラッコ') || t.includes('海獺')) document.getElementById('colCategory').value = '海獺';
+        else if (t.includes('シーサー') || t.includes('獅薩')) document.getElementById('colCategory').value = '獅薩';
+        else if (t.includes('カニ') || t.includes('古本屋')) document.getElementById('colCategory').value = '古本屋';
+        else if (t.includes('ちいかわ') || t.includes('吉伊')) document.getElementById('colCategory').value = '吉伊卡哇';
 
-        document.getElementById('syncStatus').innerText = '✨ 官方美照與品名載入完成！請填入日幣價格';
+        document.getElementById('syncStatus').innerText = '✨ 官方圖片與品名已抓取！請填入日幣原價';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
+      } else {
+        alert('抓取受阻，請點擊「讀取官網資訊」重試一次。');
+        document.getElementById('syncStatus').innerText = '';
       }
+
+      btn.innerText = '讀取官網資訊';
+      btn.disabled = false;
     }
 
     function renderFilterButtons() {
@@ -357,23 +353,15 @@
     }
 
     async function addCollectionItem() {
-      let title = document.getElementById('colTitle').value.trim();
+      const title = document.getElementById('colTitle').value.trim();
       const jpy = document.getElementById('colJpy').value.trim();
       const buyPrice = document.getElementById('colBuyTwd').value.trim();
       const category = document.getElementById('colCategory').value;
-      let img = document.getElementById('colImage').value.trim();
+      const img = document.getElementById('colImage').value.trim();
       const url = document.getElementById('colUrl').value.trim();
 
+      if (!title) return alert('請先貼上網址讀取品名！');
       if (!jpy) return alert('請填寫日幣含稅原價（例如 1650）！');
-
-      // 檢查圖片若還沒跑出來，自動補抓
-      if (!img && url) {
-        await handleUrlAutoFetch();
-        title = document.getElementById('colTitle').value.trim();
-        img = document.getElementById('colImage').value.trim();
-      }
-
-      if (!title) title = `${category} 周邊吊飾`;
 
       const btn = document.getElementById('btnColAdd');
       btn.disabled = true;
@@ -406,17 +394,14 @@
         allItems.unshift(newItem);
         renderCollection();
 
-        // 清空輸入並重設預覽
         document.getElementById('colUrl').value = '';
         document.getElementById('colTitle').value = '';
         document.getElementById('colJpy').value = '';
         document.getElementById('colBuyTwd').value = '';
         document.getElementById('colImage').value = '';
         document.getElementById('previewImg').src = 'https://api.iconify.design/fluent-emoji-flat:camera.svg';
-        document.getElementById('previewText').innerText = '等待網址...';
-        lastFetchedHandle = "";
 
-        document.getElementById('syncStatus').innerText = '✅ 收藏成功加入圖鑑！';
+        document.getElementById('syncStatus').innerText = '✅ 成功加入收藏圖鑑！';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 2500);
       } catch (err) {
         alert('存入失敗');
