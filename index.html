@@ -10,7 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Kosugi+Maru&display=swap" rel="stylesheet">
   <style>
-    /* 預設字體為溫柔的日系圓體 */
     body {
       font-family: 'Zen Maru Gothic', sans-serif;
       transition: font-family 0.2s ease;
@@ -66,12 +65,12 @@
       </div>
     </div>
 
-    <!-- 標題區 (日系微甜燕麥風) -->
+    <!-- 標題區 -->
     <header class="text-center mb-7">
       <h1 class="text-2xl sm:text-3xl font-black text-[#43382b] tracking-tight mb-1.5">
         吉伊卡哇 收藏圖鑑 ＆ 追蹤帳本
       </h1>
-      <p class="text-xs sm:text-sm text-[#8c7c68] font-medium">官方商品高畫質美照同步 ☁️ 精準記帳</p>
+      <p class="text-xs sm:text-sm text-[#8c7c68] font-medium">全格式商品網址支援 ☁️ 官方高畫質美照同步</p>
     </header>
 
     <!-- 分頁切換鈕 -->
@@ -165,7 +164,7 @@
       <!-- 角色篩選列 -->
       <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons"></div>
 
-      <!-- 統計數據條 (溫潤燕麥奶色) -->
+      <!-- 統計數據條 -->
       <div class="flex flex-wrap justify-between items-center bg-[#e8e2d7] px-5 py-3 rounded-2xl text-[#4a4036] font-bold shadow-sm mb-6">
         <div class="text-xs sm:text-sm">🎒 <span id="colStatsCount">圖鑑數量：0 件</span></div>
         <div class="text-xs sm:text-sm">💵 <span id="colStatsTotal">收藏總投入：NT$ 0</span></div>
@@ -186,9 +185,9 @@
         </div>
 
         <div class="mb-4">
-          <label class="block text-xs font-bold text-[#706251] mb-1.5">🔗 官網商品網址 (選填，貼上可自動抓圖與品名)</label>
+          <label class="block text-xs font-bold text-[#706251] mb-1.5">🔗 官網商品網址 (貼上後點讀取，或直接離開輸入框)</label>
           <div class="flex gap-2">
-            <input id="ordUrl" type="url" onchange="fetchProductForOrder()" placeholder="可貼官方網址自動抓圖，也可手動打字" 
+            <input id="ordUrl" type="url" onchange="fetchProductForOrder()" placeholder="https://chiikawamarket.jp/.../products/..." 
                    class="oatmeal-input flex-1 rounded-2xl px-4 py-2.5 text-xs sm:text-sm">
             <button onclick="fetchProductForOrder()" id="btnFetchOrd" class="bg-[#ebd9c8] hover:bg-[#dec8b3] text-[#57493a] font-bold px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition shrink-0 shadow-sm">
               🪄 讀取資訊
@@ -293,7 +292,6 @@
     let allItems = [];
     let currentFilter = "全部";
 
-    // 字體動態切換與本機記憶
     function changeGlobalFont(fontClass) {
       const body = document.getElementById('pageBody');
       body.classList.remove('font-zen', 'font-mplus', 'font-noto', 'font-kosugi');
@@ -337,41 +335,49 @@
       } catch (e) {}
     }
 
-    // 全能解析：支援 /collections/... 與 /zh-hant/
+    // ★ 終極多管道抓取器 (支援轉址與防快取阻擋) ★
     async function scrapeOfficialProduct(url) {
       if (!url) return null;
+
+      // 精準提取 /products/ 後面的真實 ID
       const match = url.match(/\/products\/([^\/\?#]+)/);
       if (!match) return null;
       
       const handle = decodeURIComponent(match[1]);
-      const targetUrl = `https://chiikawamarket.jp/products/${handle}.js`;
+      const targetJsUrl = `https://chiikawamarket.jp/products/${handle}.js`;
 
       let product = null;
 
-      // 1. Google 伺服器
+      // 管道 1：Allorigins 直接提取內容
       try {
-        const gasRes = await fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'scrape', handle: handle })
-        });
-        product = await gasRes.json();
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetJsUrl)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.contents) product = JSON.parse(data.contents);
+        }
       } catch (e) {}
 
-      // 2. Allorigins
+      // 管道 2：Corsproxy 備用
       if (!product || !product.title) {
         try {
-          const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-          const data = await res.json();
-          if (data.contents) product = JSON.parse(data.contents);
+          const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetJsUrl)}`);
+          if (res2.ok) product = await res2.json();
         } catch (e) {}
       }
 
-      // 3. Corsproxy
+      // 管道 3：Google Apps Script (明確追蹤轉址)
       if (!product || !product.title) {
         try {
-          const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
-          if (res2.ok) product = await res2.json();
+          const gasRes = await fetch(GAS_API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'scrape', handle: handle })
+          });
+          if (gasRes.ok) {
+            const data3 = await gasRes.json();
+            if (data3 && data3.title) product = data3;
+          }
         } catch (e) {}
       }
 
@@ -417,7 +423,7 @@
         document.getElementById('syncStatus').innerText = '✨ 官方照片與品名已就緒！請填寫日幣原價';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
       } else {
-        alert('抓取失敗，請確認是否為單一商品頁面！');
+        alert('抓取受阻，請再次點擊「讀取商品資訊」試試看！');
         document.getElementById('syncStatus').innerText = '';
       }
       btn.innerText = '🪄 讀取商品資訊';
@@ -443,7 +449,7 @@
         document.getElementById('syncStatus').innerText = '✨ 預購美圖與品名已就緒！請填寫價格與訂金';
         setTimeout(() => document.getElementById('syncStatus').innerText = '', 3000);
       } else {
-        alert('抓取失敗，請確認網址！');
+        alert('抓取受阻，請再次點擊「讀取資訊」重試一次！');
         document.getElementById('syncStatus').innerText = '';
       }
       btn.innerText = '🪄 讀取資訊';
