@@ -5,116 +5,138 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ちいかわ 吉伊卡哇收藏圖鑑＆預購小帳本</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入多款日系高質感字體 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Kosugi+Maru&display=swap" rel="stylesheet">
   <style>
+    /* 預設字體為溫柔的日系圓體 */
     body {
-      font-family: 'Zen Maru Gothic', 'M PLUS Rounded 1c', sans-serif;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      transition: font-family 0.2s ease;
     }
+    .font-zen { font-family: 'Zen Maru Gothic', sans-serif !important; }
+    .font-mplus { font-family: 'M PLUS Rounded 1c', sans-serif !important; }
+    .font-noto { font-family: 'Noto Sans TC', sans-serif !important; }
+    .font-kosugi { font-family: 'Kosugi Maru', 'Zen Maru Gothic', sans-serif !important; }
+
     .tab-active {
-      background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
-      color: #ffffff !important;
-      box-shadow: 0 6px 16px rgba(255, 117, 140, 0.35);
-      transform: translateY(-1px);
+      background: #ffffff;
+      color: #78350f !important;
+      box-shadow: 0 4px 14px rgba(120, 53, 15, 0.08);
+      border-bottom: 2px solid #b45309;
     }
-    .cute-card {
-      background: rgba(255, 255, 255, 0.95);
-      border: 2px solid #ffe4e6;
-      box-shadow: 0 10px 25px -5px rgba(255, 182, 193, 0.25);
+    .oatmeal-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1.5px solid #f1ece4;
+      box-shadow: 0 10px 30px -5px rgba(140, 120, 100, 0.06);
     }
-    .cute-input {
-      border: 2px solid #fecdd3;
-      background-color: #fffafb;
+    .oatmeal-input {
+      border: 1.5px solid #e7e0d6;
+      background-color: #faf8f5;
       transition: all 0.2s ease;
     }
-    .cute-input:focus {
+    .oatmeal-input:focus {
       outline: none;
-      border-color: #f43f5e;
+      border-color: #d97706;
       background-color: #ffffff;
-      box-shadow: 0 0 0 4px rgba(254, 205, 211, 0.45);
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
     }
   </style>
 </head>
-<body class="bg-gradient-to-b from-rose-100/70 via-pink-50 to-amber-50/60 min-h-screen text-slate-700 p-3 sm:p-8">
+<body id="pageBody" class="bg-[#f7f5f0] min-h-screen text-[#4a4036] p-3 sm:p-8">
 
   <div class="max-w-5xl mx-auto">
-    <!-- 可愛夢幻 Header -->
-    <header class="text-center mb-7">
-      <div class="inline-flex items-center gap-2 bg-white/90 border border-pink-200 px-4 py-1.5 rounded-full shadow-sm mb-2.5">
-        <span class="text-sm">₍ᐢ.ˬ.ᐢ₎</span>
-        <span class="text-xs font-black tracking-widest text-pink-500">CHIIKAWA DIARY & ARCHIVE</span>
-        <span class="text-sm">₍ᐢ..ᐢ₎</span>
+    <!-- 頂部控制列：字體切換選單 -->
+    <div class="flex justify-between items-center mb-6">
+      <div class="inline-flex items-center gap-1.5 bg-[#eae5dc]/80 border border-[#ded7cc] px-3.5 py-1 rounded-full text-xs font-bold text-[#7c6f5d]">
+        <span>₍ᐢ.ˬ.ᐢ₎</span>
+        <span>CHIIKAWA ARCHIVE</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-black text-rose-500 tracking-tight drop-shadow-sm">
-        🌸 吉伊卡哇 收藏圖鑑＆預購小帳本 🌸
+
+      <!-- 字體切換下拉選單 -->
+      <div class="flex items-center gap-2 bg-white/90 border border-[#e8e2d8] px-3 py-1.5 rounded-2xl shadow-sm">
+        <span class="text-xs font-bold text-[#8c7e6c]">🔤 字體切換：</span>
+        <select id="fontSelector" onchange="changeGlobalFont(this.value)" class="text-xs font-bold bg-transparent border-none focus:outline-none cursor-pointer text-[#5a4e3e]">
+          <option value="font-zen">日系圓體 (Zen Maru)</option>
+          <option value="font-mplus">萌感圓體 (M PLUS)</option>
+          <option value="font-kosugi">簡約圓角 (Kosugi)</option>
+          <option value="font-noto">清新無襯線 (Noto Sans)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 標題區 (日系微甜燕麥風) -->
+    <header class="text-center mb-7">
+      <h1 class="text-2xl sm:text-3xl font-black text-[#43382b] tracking-tight mb-1.5">
+        吉伊卡哇 收藏圖鑑 ＆ 追蹤帳本
       </h1>
-      <p class="text-xs sm:text-sm text-pink-400 mt-1 font-bold">貼網址秒抓官方照片 ☁️ 雲端同步無痛記帳</p>
+      <p class="text-xs sm:text-sm text-[#8c7c68] font-medium">官方商品高畫質美照同步 ☁️ 精準記帳</p>
     </header>
 
     <!-- 分頁切換鈕 -->
     <div class="flex justify-center mb-6">
-      <div class="bg-white/80 backdrop-blur p-1.5 rounded-3xl flex gap-2 border-2 border-pink-200/80 shadow-md shadow-pink-100">
-        <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-6 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition duration-200">
+      <div class="bg-[#ece7de] p-1.5 rounded-2xl flex gap-2 border border-[#ded7cb]">
+        <button onclick="switchTab('collection')" id="tabBtnCollection" class="tab-active py-2 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition duration-200">
           <span>🏆</span> 收藏圖鑑
         </button>
-        <button onclick="switchTab('orders')" id="tabBtnOrders" class="text-gray-500 hover:text-pink-500 py-2 px-6 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition duration-200">
-          <span>📦</span> 購買／預購紀錄 (<span id="unpaidBadge" class="text-rose-500 font-extrabold">0</span>)
+        <button onclick="switchTab('orders')" id="tabBtnOrders" class="text-[#786b59] hover:text-[#43382b] py-2 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition duration-200">
+          <span>📦</span> 購買／預購紀錄 (<span id="unpaidBadge" class="text-amber-700 font-extrabold">0</span>)
         </button>
       </div>
     </div>
 
     <!-- 狀態提醒列 -->
-    <div id="syncStatus" class="text-center text-xs font-bold text-pink-600 mb-3 h-4 transition-all"></div>
+    <div id="syncStatus" class="text-center text-xs font-bold text-[#b45309] mb-3 h-4 transition-all"></div>
 
     <!-- ======================= 1. 收藏圖鑑 ======================= -->
     <div id="viewCollection">
-      <div class="cute-card p-5 sm:p-7 rounded-3xl mb-8">
-        <div class="flex items-center justify-between mb-4 border-b border-pink-100 pb-3">
-          <h2 class="text-sm font-black text-rose-500 flex items-center gap-2">
-            <span class="bg-rose-100 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-xs">✨</span>
-            新增入手圖鑑
+      <div class="oatmeal-card p-5 sm:p-7 rounded-3xl mb-8">
+        <div class="flex items-center justify-between mb-4 border-b border-[#f1ede6] pb-3">
+          <h2 class="text-sm font-black text-[#57493a] flex items-center gap-2">
+            <span class="bg-[#ebd9c8] text-[#854d0e] w-6 h-6 rounded-full flex items-center justify-center text-xs">＋</span>
+            新增實體收藏
           </h2>
-          <span class="text-[11px] text-pink-400 font-bold">貼上網址自動抓圖與品名</span>
+          <span class="text-[11px] text-[#9c8e7c]">貼上商品網址自動帶出品名與圖片</span>
         </div>
 
         <!-- 網址輸入區 -->
         <div class="mb-4">
-          <label class="block text-xs font-bold text-gray-500 mb-1.5">🔗 官網商品網址（支援中文 / 日文網址）</label>
+          <label class="block text-xs font-bold text-[#706251] mb-1.5">🔗 官網商品網址（支援繁中/日文/預購特設目錄）</label>
           <div class="flex gap-2">
             <input id="colUrl" type="url" onchange="fetchProductForCollection()" placeholder="https://chiikawamarket.jp/.../products/..." 
-                   class="cute-input flex-1 rounded-2xl px-4 py-2.5 text-xs sm:text-sm">
-            <button onclick="fetchProductForCollection()" id="btnFetchCol" class="bg-pink-100 hover:bg-pink-200 text-rose-600 font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition shrink-0 shadow-sm">
-              🪄 抓取資訊
+                   class="oatmeal-input flex-1 rounded-2xl px-4 py-2.5 text-xs sm:text-sm">
+            <button onclick="fetchProductForCollection()" id="btnFetchCol" class="bg-[#ebd9c8] hover:bg-[#dec8b3] text-[#57493a] font-bold px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition shrink-0 shadow-sm">
+              🪄 讀取商品資訊
             </button>
           </div>
         </div>
 
         <!-- 照片預覽 + 資料填寫區 -->
         <div class="flex flex-col sm:flex-row gap-4 items-center mb-4">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-rose-50/70 border-2 border-dashed border-pink-200 flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-inner">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#f7f5f1] border border-[#e5ded4] flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-inner">
             <img id="previewColImg" src="https://api.iconify.design/fluent-emoji-flat:camera.svg" class="w-full h-full object-contain p-2">
           </div>
 
           <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="sm:col-span-3">
-              <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 商品品名 (自動填入)</label>
+              <label class="block text-xs font-bold text-[#706251] mb-1">🏷️ 商品品名 (自動填入)</label>
               <input id="colTitle" type="text" placeholder="貼上網址後自動抓取，亦可手動修改" 
-                     class="cute-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
+                     class="oatmeal-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
             </div>
             <div>
-              <label class="block text-xs font-black text-rose-500 mb-1">💴 日幣含稅原價 (自己填)</label>
+              <label class="block text-xs font-bold text-[#92400e] mb-1">💴 日幣含稅原價 (自己填)</label>
               <input id="colJpy" type="number" placeholder="例如: 1650" 
-                     class="w-full border-2 border-rose-300 rounded-2xl px-3.5 py-2 text-xs sm:text-sm font-black text-rose-600 bg-rose-50/30 focus:outline-none focus:ring-2 focus:ring-rose-400">
+                     class="w-full border-2 border-[#d97706]/40 rounded-2xl px-3.5 py-2 text-xs sm:text-sm font-bold text-[#92400e] bg-amber-50/40 focus:outline-none focus:ring-2 focus:ring-[#d97706]/50">
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 mb-1">💰 購入金額 (NTD)</label>
+              <label class="block text-xs font-bold text-[#706251] mb-1">💰 購入金額 (NTD)</label>
               <input id="colBuyTwd" type="number" placeholder="例如: 430" 
-                     class="cute-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
+                     class="oatmeal-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類</label>
-              <select id="colCategory" class="cute-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm bg-white">
+              <label class="block text-xs font-bold text-[#706251] mb-1">🐾 角色歸類</label>
+              <select id="colCategory" class="oatmeal-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm bg-white">
                 <option value="吉伊卡哇">吉伊卡哇 (ちいかわ)</option>
                 <option value="小八貓">小八貓 (ハチワレ)</option>
                 <option value="兔兔">兔兔 (うさぎ)</option>
@@ -123,6 +145,8 @@
                 <option value="海獺">海獺勇者 (ラッコ)</option>
                 <option value="獅薩">獅薩 (シーサー)</option>
                 <option value="古本屋">古本屋 (カニちゃん)</option>
+                <option value="海妖">海妖塞壬 (セイレーン)</option>
+                <option value="島二郎">島二郎</option>
                 <option value="其他">其他 / 多人款</option>
               </select>
             </div>
@@ -132,17 +156,17 @@
         <input id="colImage" type="hidden">
 
         <div class="flex justify-end">
-          <button onclick="addCollectionItem()" id="btnColAdd" class="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-black py-2.5 px-8 rounded-2xl text-xs sm:text-sm transition shadow-lg shadow-pink-200">
-            💖 收藏至圖鑑
+          <button onclick="addCollectionItem()" id="btnColAdd" class="w-full sm:w-auto bg-[#57493a] hover:bg-[#43382b] text-white font-bold py-2.5 px-8 rounded-2xl text-xs sm:text-sm transition shadow-md shadow-[#57493a]/20">
+            💾 收藏至圖鑑
           </button>
         </div>
       </div>
 
-      <!-- 角色過濾列 -->
+      <!-- 角色篩選列 -->
       <div class="mb-6 flex flex-wrap items-center gap-2" id="characterFilterButtons"></div>
 
-      <!-- 統計數據 -->
-      <div class="flex flex-wrap justify-between items-center bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 px-5 py-3 rounded-2xl text-white font-black shadow-md shadow-pink-200 mb-6">
+      <!-- 統計數據條 (溫潤燕麥奶色) -->
+      <div class="flex flex-wrap justify-between items-center bg-[#e8e2d7] px-5 py-3 rounded-2xl text-[#4a4036] font-bold shadow-sm mb-6">
         <div class="text-xs sm:text-sm">🎒 <span id="colStatsCount">圖鑑數量：0 件</span></div>
         <div class="text-xs sm:text-sm">💵 <span id="colStatsTotal">收藏總投入：NT$ 0</span></div>
       </div>
@@ -152,43 +176,40 @@
 
     <!-- ======================= 2. 購買／預購紀錄 ======================= -->
     <div id="viewOrders" class="hidden">
-      <div class="cute-card p-5 sm:p-7 rounded-3xl mb-8">
-        <div class="flex items-center justify-between mb-4 border-b border-pink-100 pb-3">
-          <h2 class="text-sm font-black text-rose-500 flex items-center gap-2">
-            <span class="bg-rose-100 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-xs">📦</span>
+      <div class="oatmeal-card p-5 sm:p-7 rounded-3xl mb-8">
+        <div class="flex items-center justify-between mb-4 border-b border-[#f1ede6] pb-3">
+          <h2 class="text-sm font-black text-[#57493a] flex items-center gap-2">
+            <span class="bg-[#ebd9c8] text-[#854d0e] w-6 h-6 rounded-full flex items-center justify-center text-xs">📦</span>
             新增預購／購買紀錄
           </h2>
-          <span class="text-[11px] text-pink-400 font-bold">同樣支援貼網址抓美圖！</span>
+          <span class="text-[11px] text-[#9c8e7c]">支援貼網址抓美圖</span>
         </div>
 
-        <!-- 預購貼網址 -->
         <div class="mb-4">
-          <label class="block text-xs font-bold text-gray-500 mb-1.5">🔗 官網商品網址 (選填，貼上可直接帶入照片與品名)</label>
+          <label class="block text-xs font-bold text-[#706251] mb-1.5">🔗 官網商品網址 (選填，貼上可自動抓圖與品名)</label>
           <div class="flex gap-2">
             <input id="ordUrl" type="url" onchange="fetchProductForOrder()" placeholder="可貼官方網址自動抓圖，也可手動打字" 
-                   class="cute-input flex-1 rounded-2xl px-4 py-2.5 text-xs sm:text-sm">
-            <button onclick="fetchProductForOrder()" id="btnFetchOrd" class="bg-pink-100 hover:bg-pink-200 text-rose-600 font-black px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition shrink-0 shadow-sm">
-              🪄 抓取圖文
+                   class="oatmeal-input flex-1 rounded-2xl px-4 py-2.5 text-xs sm:text-sm">
+            <button onclick="fetchProductForOrder()" id="btnFetchOrd" class="bg-[#ebd9c8] hover:bg-[#dec8b3] text-[#57493a] font-bold px-4 py-2.5 rounded-2xl text-xs sm:text-sm transition shrink-0 shadow-sm">
+              🪄 讀取資訊
             </button>
           </div>
         </div>
 
-        <!-- 預購資訊填寫 -->
         <div class="flex flex-col sm:flex-row gap-4 items-center mb-4">
-          <!-- 預購官方圖預覽 -->
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-rose-50/70 border-2 border-dashed border-pink-200 flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-inner">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#f7f5f1] border border-[#e5ded4] flex flex-col items-center justify-center overflow-hidden shrink-0 shadow-inner">
             <img id="previewOrdImg" src="https://api.iconify.design/fluent-emoji-flat:package.svg" class="w-full h-full object-contain p-2">
           </div>
 
           <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="sm:col-span-2">
-              <label class="block text-xs font-bold text-gray-500 mb-1">🏷️ 預購商品名稱</label>
-              <input id="ordTitle" type="text" placeholder="例如：一番賞 A賞兔兔、平行世界吊飾" 
-                     class="cute-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
+              <label class="block text-xs font-bold text-[#706251] mb-1">🏷️ 預購商品名稱</label>
+              <input id="ordTitle" type="text" placeholder="例如：電影版 海妖塞壬吊飾" 
+                     class="oatmeal-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 mb-1">🐾 角色歸類</label>
-              <select id="ordCategory" class="cute-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm bg-white">
+              <label class="block text-xs font-bold text-[#706251] mb-1">🐾 角色歸類</label>
+              <select id="ordCategory" class="oatmeal-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm bg-white">
                 <option value="吉伊卡哇">吉伊卡哇</option>
                 <option value="小八貓">小八貓</option>
                 <option value="兔兔">兔兔</option>
@@ -197,39 +218,40 @@
                 <option value="海獺">海獺勇者</option>
                 <option value="獅薩">獅薩</option>
                 <option value="古本屋">古本屋</option>
+                <option value="海妖">海妖塞壬</option>
+                <option value="島二郎">島二郎</option>
                 <option value="其他">其他 / 多人款</option>
               </select>
             </div>
             <div class="sm:col-span-3">
-              <label class="block text-xs font-bold text-gray-500 mb-1">🛍️ 代購主 / 購買來源備註</label>
-              <input id="ordSeller" type="text" placeholder="例如：FB社團小花代購、蝦皮、日拍" 
-                     class="cute-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
+              <label class="block text-xs font-bold text-[#706251] mb-1">🛍️ 代購主 / 購買來源備註</label>
+              <input id="ordSeller" type="text" placeholder="例如：FB社團代購、日拍預購" 
+                     class="oatmeal-input w-full rounded-2xl px-3.5 py-2 text-xs sm:text-sm">
             </div>
           </div>
         </div>
 
         <input id="ordImage" type="hidden">
 
-        <!-- 價格與訂金計算區 -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 bg-pink-50/40 p-3.5 rounded-2xl border border-pink-100">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 bg-[#f5f1ea] p-3.5 rounded-2xl border border-[#e7e1d6]">
           <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">預購總額 (NTD)</label>
-            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 550" 
-                   class="cute-input w-full rounded-xl px-3 py-2 text-xs sm:text-sm font-bold">
+            <label class="block text-xs font-bold text-[#706251] mb-1">預購總額 (NTD)</label>
+            <input id="ordTotalTwd" type="number" oninput="calcRemaining()" placeholder="例如: 650" 
+                   class="oatmeal-input w-full rounded-xl px-3 py-2 text-xs sm:text-sm font-bold">
           </div>
           <div>
-            <label class="block text-xs font-black text-rose-500 mb-1">已付訂金 (NTD)</label>
-            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 200" 
-                   class="w-full border-2 border-rose-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-black text-rose-600 bg-rose-50/40 focus:outline-none focus:ring-2 focus:ring-rose-400">
+            <label class="block text-xs font-bold text-[#92400e] mb-1">已付訂金 (NTD)</label>
+            <input id="ordDepositTwd" type="number" oninput="calcRemaining()" placeholder="例如: 300" 
+                   class="w-full border-2 border-[#d97706]/40 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-[#92400e] bg-amber-50/40 focus:outline-none focus:ring-2 focus:ring-[#d97706]/50">
           </div>
           <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">剩餘尾款 (自動算)</label>
+            <label class="block text-xs font-bold text-[#706251] mb-1">剩餘尾款 (自動算)</label>
             <input id="ordRemainingTwd" type="number" placeholder="尾款" disabled 
-                   class="w-full bg-white/80 border border-pink-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-black text-rose-500">
+                   class="w-full bg-white border border-[#ded6c9] rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-[#b45309]">
           </div>
           <div>
-            <label class="block text-xs font-bold text-gray-500 mb-1">訂單狀態</label>
-            <select id="ordStatus" class="cute-input w-full rounded-xl px-2.5 py-2 text-xs sm:text-sm bg-white font-bold text-gray-700">
+            <label class="block text-xs font-bold text-[#706251] mb-1">訂單狀態</label>
+            <select id="ordStatus" class="oatmeal-input w-full rounded-xl px-2.5 py-2 text-xs sm:text-sm bg-white font-bold text-[#57493a]">
               <option value="已付訂金">🟡 已付訂金 (待出貨)</option>
               <option value="尚未付款">🔴 尚未付款</option>
               <option value="已全額結清">🟢 已全額結清</option>
@@ -239,13 +261,12 @@
         </div>
 
         <div class="mt-4 flex justify-end">
-          <button onclick="addOrderItem()" id="btnOrdAdd" class="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-black py-2.5 px-8 rounded-2xl text-xs sm:text-sm transition shadow-lg shadow-pink-200">
+          <button onclick="addOrderItem()" id="btnOrdAdd" class="w-full sm:w-auto bg-[#57493a] hover:bg-[#43382b] text-white font-bold py-2.5 px-8 rounded-2xl text-xs sm:text-sm transition shadow-md shadow-[#57493a]/20">
             📦 儲存預購紀錄
           </button>
         </div>
       </div>
 
-      <!-- 預購訂單卡片清單 -->
       <div id="orderList" class="space-y-4"></div>
     </div>
   </div>
@@ -263,6 +284,8 @@
       "海獺": "https://api.iconify.design/fluent-emoji-flat:seal.svg",
       "獅薩": "https://api.iconify.design/fluent-emoji-flat:lion.svg",
       "古本屋": "https://api.iconify.design/fluent-emoji-flat:crab.svg",
+      "海妖": "https://api.iconify.design/fluent-emoji-flat:mermaid.svg",
+      "島二郎": "https://api.iconify.design/fluent-emoji-flat:cook.svg",
       "其他": "https://api.iconify.design/fluent-emoji-flat:sparkles.svg"
     };
 
@@ -270,17 +293,33 @@
     let allItems = [];
     let currentFilter = "全部";
 
+    // 字體動態切換與本機記憶
+    function changeGlobalFont(fontClass) {
+      const body = document.getElementById('pageBody');
+      body.classList.remove('font-zen', 'font-mplus', 'font-noto', 'font-kosugi');
+      body.classList.add(fontClass);
+      localStorage.setItem('user_selected_font', fontClass);
+    }
+
+    function initUserFont() {
+      const saved = localStorage.getItem('user_selected_font');
+      if (saved) {
+        changeGlobalFont(saved);
+        document.getElementById('fontSelector').value = saved;
+      }
+    }
+
     function switchTab(tab) {
       if (tab === 'collection') {
         document.getElementById('viewCollection').classList.remove('hidden');
         document.getElementById('viewOrders').classList.add('hidden');
-        document.getElementById('tabBtnCollection').className = "tab-active py-2 px-6 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition duration-200";
-        document.getElementById('tabBtnOrders').className = "text-gray-500 hover:text-pink-500 py-2 px-6 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnCollection').className = "tab-active py-2 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnOrders').className = "text-[#786b59] hover:text-[#43382b] py-2 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition duration-200";
       } else {
         document.getElementById('viewCollection').classList.add('hidden');
         document.getElementById('viewOrders').classList.remove('hidden');
-        document.getElementById('tabBtnOrders').className = "tab-active py-2 px-6 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition duration-200";
-        document.getElementById('tabBtnCollection').className = "text-gray-500 hover:text-pink-500 py-2 px-6 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnOrders').className = "tab-active py-2 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition duration-200";
+        document.getElementById('tabBtnCollection').className = "text-[#786b59] hover:text-[#43382b] py-2 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition duration-200";
       }
     }
 
@@ -298,20 +337,37 @@
       } catch (e) {}
     }
 
-    // 通用官網商品抓取器
+    // 全能解析：支援 /collections/... 與 /zh-hant/
     async function scrapeOfficialProduct(url) {
-      const match = url.match(/\/products\/([^?#/]+)/);
+      if (!url) return null;
+      const match = url.match(/\/products\/([^\/\?#]+)/);
       if (!match) return null;
+      
       const handle = decodeURIComponent(match[1]);
       const targetUrl = `https://chiikawamarket.jp/products/${handle}.js`;
 
       let product = null;
+
+      // 1. Google 伺服器
       try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-        const data = await res.json();
-        if (data.contents) product = JSON.parse(data.contents);
+        const gasRes = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'scrape', handle: handle })
+        });
+        product = await gasRes.json();
       } catch (e) {}
 
+      // 2. Allorigins
+      if (!product || !product.title) {
+        try {
+          const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+          const data = await res.json();
+          if (data.contents) product = JSON.parse(data.contents);
+        } catch (e) {}
+      }
+
+      // 3. Corsproxy
       if (!product || !product.title) {
         try {
           const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
@@ -333,6 +389,8 @@
         else if (t.includes('ラッコ') || t.includes('海獺')) matchedCat = '海獺';
         else if (t.includes('シーサー') || t.includes('獅薩')) matchedCat = '獅薩';
         else if (t.includes('カニ') || t.includes('古本屋')) matchedCat = '古本屋';
+        else if (t.includes('セイレーン') || t.includes('海妖')) matchedCat = '海妖';
+        else if (t.includes('島二郎')) matchedCat = '島二郎';
         else if (t.includes('ちいかわ') || t.includes('吉伊')) matchedCat = '吉伊卡哇';
 
         return { title: product.title, image: img, category: matchedCat };
@@ -340,14 +398,13 @@
       return null;
     }
 
-    // 1. 收藏分頁抓取
     async function fetchProductForCollection() {
       const url = document.getElementById('colUrl').value.trim();
       if (!url) return;
       const btn = document.getElementById('btnFetchCol');
       btn.innerText = '讀取中...';
       btn.disabled = true;
-      document.getElementById('syncStatus').innerText = '⏳ 正在讀取官方美圖...';
+      document.getElementById('syncStatus').innerText = '⏳ 正在讀取官方商品資料...';
 
       const data = await scrapeOfficialProduct(url);
       if (data) {
@@ -363,11 +420,10 @@
         alert('抓取失敗，請確認是否為單一商品頁面！');
         document.getElementById('syncStatus').innerText = '';
       }
-      btn.innerText = '🪄 抓取資訊';
+      btn.innerText = '🪄 讀取商品資訊';
       btn.disabled = false;
     }
 
-    // 2. 預購分頁抓取
     async function fetchProductForOrder() {
       const url = document.getElementById('ordUrl').value.trim();
       if (!url) return;
@@ -390,22 +446,22 @@
         alert('抓取失敗，請確認網址！');
         document.getElementById('syncStatus').innerText = '';
       }
-      btn.innerText = '🪄 抓取圖文';
+      btn.innerText = '🪄 讀取資訊';
       btn.disabled = false;
     }
 
     function renderFilterButtons() {
       const bar = document.getElementById('characterFilterButtons');
       bar.innerHTML = '';
-      const chars = ["全部", "吉伊卡哇", "小八貓", "兔兔", "小桃鼠", "栗子饅頭", "海獺", "獅薩", "古本屋"];
+      const chars = ["全部", "吉伊卡哇", "小八貓", "兔兔", "小桃鼠", "栗子饅頭", "海獺", "獅薩", "古本屋", "海妖", "島二郎"];
 
       chars.forEach(ch => {
         const activeClass = currentFilter === ch 
-          ? "bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md shadow-pink-200 scale-105" 
-          : "bg-white/90 text-gray-700 hover:bg-pink-50 border border-pink-100";
+          ? "bg-[#57493a] text-white shadow-sm scale-105" 
+          : "bg-white/90 text-[#635544] hover:bg-[#eae5dc] border border-[#e5dfd5]";
 
         const btn = document.createElement('button');
-        btn.className = `flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black transition-all duration-200 ${activeClass}`;
+        btn.className = `flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${activeClass}`;
         btn.onclick = () => {
           currentFilter = ch;
           renderFilterButtons();
@@ -420,7 +476,7 @@
     }
 
     async function loadCloudData() {
-      document.getElementById('syncStatus').innerText = '☁️ 雲端載入中...';
+      document.getElementById('syncStatus').innerText = '☁️ 雲端同步載入中...';
       try {
         const res = await fetch(GAS_API_URL);
         allItems = await res.json();
@@ -507,7 +563,6 @@
       btn.disabled = true;
       document.getElementById('syncStatus').innerText = '☁️ 正在記錄預購訂單...';
 
-      // 預購記錄：imageUrl 儲存照片，url 儲存狀態與賣家資訊
       const newItem = {
         id: "ORD_" + Date.now(),
         title: title,
@@ -579,37 +634,37 @@
 
         const diff = item.buyPriceTwd - item.twdOriginalPrice;
         const diffTag = item.buyPriceTwd > 0 
-          ? (diff > 0 ? `<span class="text-rose-500 font-black">+${diff} (溢價)</span>` : `<span class="text-emerald-500 font-black">${diff} (折扣)</span>`) 
+          ? (diff > 0 ? `<span class="text-[#c2410c] font-bold">+${diff} (溢價)</span>` : `<span class="text-[#15803d] font-bold">${diff} (折扣)</span>`) 
           : '-';
 
         const avatar = CHAR_AVATARS[item.category] || CHAR_AVATARS['其他'];
 
         const card = document.createElement('div');
-        card.className = "bg-white/95 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col border-2 border-pink-100 group";
+        card.className = "bg-white rounded-3xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col border border-[#ede8df] group";
         card.innerHTML = `
-          <div class="relative pt-[100%] bg-gradient-to-b from-rose-50/60 to-white overflow-hidden">
+          <div class="relative pt-[100%] bg-[#faf8f5] overflow-hidden">
             <img src="${item.imageUrl}" 
                  onerror="this.onerror=null;this.src='${avatar}';" 
                  class="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition duration-300">
-            <span class="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur text-rose-500 text-[11px] px-2.5 py-1 rounded-full font-black flex items-center gap-1.5 shadow-sm border border-pink-100">
+            <span class="absolute top-2.5 left-2.5 bg-white/95 text-[#5c4d3c] text-[11px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-sm border border-[#e8e2d8]">
               <img src="${avatar}" class="w-3.5 h-3.5 object-contain">
               ${item.category}
             </span>
           </div>
           <div class="p-3.5 flex-1 flex flex-col justify-between">
             <div>
-              <div class="text-xs sm:text-sm font-black text-slate-800 line-clamp-2 mb-2 group-hover:text-rose-500 transition" title="${item.title}">
+              <div class="text-xs sm:text-sm font-bold text-[#382f25] line-clamp-2 mb-2 group-hover:text-[#b45309] transition" title="${item.title}">
                 ${item.title}
               </div>
-              <div class="text-[11px] text-gray-500 space-y-1 bg-rose-50/50 p-2.5 rounded-2xl border border-pink-100/60">
-                <div>官網原價：<b class="text-gray-700">¥${Number(item.jpyPrice).toLocaleString()}</b> <span class="text-[10px] text-gray-400">(約 NT$ ${item.twdOriginalPrice})</span></div>
-                <div>購入價格：<b class="text-rose-500 font-black">NT$ ${item.buyPriceTwd}</b></div>
+              <div class="text-[11px] text-[#786b59] space-y-1 bg-[#f7f5f0] p-2.5 rounded-2xl border border-[#ebe5dc]">
+                <div>官網原價：<b class="text-[#43382b]">¥${Number(item.jpyPrice).toLocaleString()}</b> <span class="text-[10px] text-[#9c8e7c]">(約 NT$ ${item.twdOriginalPrice})</span></div>
+                <div>購入價格：<b class="text-[#92400e] font-bold">NT$ ${item.buyPriceTwd}</b></div>
                 <div>價差比較：${diffTag}</div>
               </div>
             </div>
-            <div class="pt-2 mt-2 border-t border-pink-50 flex justify-between items-center text-xs">
-              ${item.url && item.url !== '#' ? `<a href="${item.url}" target="_blank" class="text-pink-400 hover:text-rose-500 font-bold text-[11px]">官網查看 ↗</a>` : '<span></span>'}
-              <button onclick="deleteItem('${item.id}')" class="text-gray-300 hover:text-rose-500 font-bold transition">刪除</button>
+            <div class="pt-2 mt-2 border-t border-[#f4f0e8] flex justify-between items-center text-xs">
+              ${item.url && item.url !== '#' ? `<a href="${item.url}" target="_blank" class="text-[#92400e] hover:underline font-bold text-[11px]">官網查看 ↗</a>` : '<span></span>'}
+              <button onclick="deleteItem('${item.id}')" class="text-[#a89b8a] hover:text-red-500 font-bold transition">刪除</button>
             </div>
           </div>
         `;
@@ -633,7 +688,6 @@
         const remaining = item.buyPriceTwd;
         const avatar = CHAR_AVATARS[item.category] || CHAR_AVATARS['其他'];
 
-        // 相容舊格式或 JSON 格式
         let status = "已付訂金";
         let seller = "未備註";
         let link = "#";
@@ -649,28 +703,27 @@
 
         if (status !== '已到貨收編') pendingCount++;
 
-        let statusBg = "bg-amber-100 text-amber-800 border-amber-300";
-        if (status === '已全額結清') statusBg = "bg-sky-100 text-sky-800 border-sky-300";
-        if (status === '已到貨收編') statusBg = "bg-emerald-100 text-emerald-800 border-emerald-300";
-        if (status === '尚未付款') statusBg = "bg-rose-100 text-rose-800 border-rose-300";
+        let statusBg = "bg-amber-50 text-amber-900 border-amber-200";
+        if (status === '已全額結清') statusBg = "bg-sky-50 text-sky-900 border-sky-200";
+        if (status === '已到貨收編') statusBg = "bg-emerald-50 text-emerald-900 border-emerald-200";
+        if (status === '尚未付款') statusBg = "bg-rose-50 text-rose-900 border-rose-200";
 
-        // 圖片：若有抓到官方圖則用官方圖，否則使用角色大頭照
         const displayImg = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : avatar;
 
         const card = document.createElement('div');
-        card.className = "bg-white/95 p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition border-2 border-pink-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4";
+        card.className = "bg-white p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition border border-[#ede8df] flex flex-col sm:flex-row sm:items-center justify-between gap-4";
         card.innerHTML = `
           <div class="flex items-center gap-3.5">
-            <div class="w-16 h-16 rounded-2xl bg-rose-50/80 flex items-center justify-center p-1.5 shrink-0 border border-pink-200 overflow-hidden shadow-inner">
+            <div class="w-16 h-16 rounded-2xl bg-[#faf8f5] flex items-center justify-center p-1.5 shrink-0 border border-[#e8e2d8] overflow-hidden shadow-inner">
               <img src="${displayImg}" class="w-full h-full object-contain">
             </div>
             <div>
-              <div class="font-black text-sm sm:text-base text-slate-800 flex items-center gap-2">
+              <div class="font-bold text-sm sm:text-base text-[#382f25] flex items-center gap-2">
                 <span>${item.title}</span>
-                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-black border ${statusBg}">${status}</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold border ${statusBg}">${status}</span>
               </div>
-              <div class="text-xs text-gray-400 mt-1 flex items-center gap-2">
-                <span>🐾 角色：<b class="text-rose-500">${item.category}</b></span>
+              <div class="text-xs text-[#786b59] mt-1 flex items-center gap-2">
+                <span>🐾 角色：<b class="text-[#57493a]">${item.category}</b></span>
                 <span>•</span>
                 <span>🛍️ 來源：${seller}</span>
               </div>
@@ -679,10 +732,10 @@
 
           <div class="flex items-center justify-between sm:justify-end gap-5 border-t sm:border-t-0 pt-3 sm:pt-0">
             <div class="text-right text-xs">
-              <div class="text-gray-500 font-medium">總額: NT$ ${total} ｜ <span class="text-rose-500 font-black">已付訂金: NT$ ${deposit}</span></div>
-              <div class="text-sm font-black text-rose-500 mt-0.5">剩餘尾款: NT$ ${remaining}</div>
+              <div class="text-[#786b59] font-medium">總額: NT$ ${total} ｜ <span class="text-[#92400e] font-bold">已付訂金: NT$ ${deposit}</span></div>
+              <div class="text-sm font-bold text-[#b45309] mt-0.5">剩餘尾款: NT$ ${remaining}</div>
             </div>
-            <button onclick="deleteItem('${item.id}')" class="text-xs text-gray-300 hover:text-rose-500 font-bold pl-2 transition">刪除</button>
+            <button onclick="deleteItem('${item.id}')" class="text-[#a89b8a] hover:text-red-500 font-bold pl-2 transition">刪除</button>
           </div>
         `;
         container.appendChild(card);
@@ -691,6 +744,7 @@
       document.getElementById('unpaidBadge').innerText = pendingCount;
     }
 
+    initUserFont();
     renderFilterButtons();
     fetchRate();
     loadCloudData();
